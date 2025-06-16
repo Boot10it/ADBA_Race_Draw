@@ -7,8 +7,8 @@ app = Flask(__name__)
 
 FINALS_UPLOAD_HTML = '''
 <!doctype html>
-<title>Upload Finals Draw CSV</title>
-<h2>Upload Finals Draw CSV</h2>
+<title>Create a Finals draw by uploading heats results</title>
+<h2>Create a Finals draw by uploading heats results</h2>
 <form method=post enctype=multipart/form-data>
   <input type=file name=finals_csv required>
   <input type=submit value=Upload>
@@ -227,6 +227,9 @@ def upload_finals_csv():
         <button type="submit">Export Finals Draw CSV</button>
       </form>
     {% endif %}
+    <form action="{{ url_for('download_template') }}" method="get" style="margin-bottom: 1em;">
+      <button type="submit">Download CSV Template to help with upload</button>
+    </form>
     ''', table=table, header=header, division_groups=division_groups, finals_draw=finals_draw, csv_content=csv_content)
 
 @app.route('/export_combined', methods=['POST'])
@@ -418,6 +421,49 @@ def export_finals():
             writer.writerow(['', '', '', '', '', ''])
     output.seek(0)
     return send_file(BytesIO(output.getvalue().encode()), mimetype='text/csv', as_attachment=True, download_name='finals_draw.csv')
+
+@app.route('/download_template')
+def download_template():
+    import io
+    import csv
+
+    output = io.StringIO()
+    writer = csv.writer(output)
+
+    # Write header
+    writer.writerow(['Heat', 'Race', 'Lane', 'Team Name', 'Division', 'time'])
+
+    # Example data as shown in your screenshot/prompt
+    heats = [
+        ('Heat 1', [
+            ('Race 1', 'Division 1'),
+            ('Race 2', 'Division 1'),
+            ('Race 3', 'Division 2'),
+            ('Race 4', 'Division 2'),
+        ])
+    ]
+    teams = ['Team 1', 'Team 2', 'Team 3', 'Team 4']
+
+    for heat_name, races in heats:
+        for race_idx, (race_name, division) in enumerate(races):
+            for lane, team in enumerate(teams, 1):
+                row = [
+                    heat_name if lane == 1 else '',
+                    race_name if lane == 1 else '',
+                    lane,
+                    team,
+                    division,
+                    0
+                ]
+                writer.writerow(row)
+
+    output.seek(0)
+    return send_file(
+        io.BytesIO(output.getvalue().encode()),
+        mimetype='text/csv',
+        as_attachment=True,
+        download_name='teams_template.csv'
+    )
 
 if __name__ == '__main__':
     app.run(debug=True)

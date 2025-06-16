@@ -1,0 +1,91 @@
+def generate_heat2_draw(teams, num_lanes, heat1_opponents, heat1_lanes, last_two_teams):
+    teams = teams.copy()
+    random.shuffle(teams)
+    races = []
+    num_races = (len(teams) + num_lanes - 1) // num_lanes
+    assigned = set()
+    # Get teams in the last race of heat 1
+    last_race_teams = set(team for team in heat1_opponents if team in heat1_opponents and team is not None)
+    if num_races > 0:
+        last_race_teams = set(team for team in teams if team is not None)
+        if hasattr(teams, '__len__') and len(teams) >= num_lanes:
+            last_race_teams = set(team for team in teams[-num_lanes:] if team is not None)
+    # Actually, better: get from heat1[-1]
+    # So, pass heat1 as an argument or get last race teams from heat1[-1]
+    # But since we have last_two_teams, let's get last race from heat1[-1]
+    # So, let's add heat1 as an argument to this function
+    # For now, let's assume last_race_teams is passed in as last_race_teams
+
+    for race_idx in range(num_races):
+        race_teams = [None] * num_lanes
+        available = [t for t in teams if t not in assigned]
+        # For the first race, avoid teams from the last race of Heat 1
+        avoid_set = set()
+        if race_idx == 0:
+            avoid_set = last_race_teams
+        elif race_idx < 2:
+            avoid_set = last_two_teams
+        for lane in range(num_lanes):
+            possible_teams = [
+                t for t in available
+                if t not in avoid_set
+                and all(t not in heat1_opponents.get(other, set()) for other in race_teams if other)
+                and heat1_lanes.get(t, -1) != lane
+            ]
+            if not possible_teams:
+                possible_teams = [
+                    t for t in available
+                    if all(t not in heat1_opponents.get(other, set()) for other in race_teams if other)
+                    and heat1_lanes.get(t, -1) != lane
+                ]
+            if not possible_teams:
+                possible_teams = [
+                    t for t in available
+                    if all(t not in heat1_opponents.get(other, set()) for other in race_teams if other)
+                ]
+            if not possible_teams:
+                possible_teams = available
+            if possible_teams:
+                team = random.choice(possible_teams)
+                race_teams[lane] = team
+                assigned.add(team)
+                available.remove(team)
+        races.append(race_teams)
+    return races
+
+def create_heats(teams, num_lanes):
+    teams = teams.copy()
+    random.shuffle(teams)
+    heats = []
+    num_heats = (len(teams) + num_lanes - 1) // num_lanes
+    assigned = set()
+
+    for heat_idx in range(num_heats):
+        heat_teams = [None] * num_lanes
+        available = [t for t in teams if t not in assigned]
+        for lane in range(num_lanes):
+            possible_teams = [
+                t for t in available
+                if all(t not in heat1_opponents.get(other, set()) for other in heat_teams if other)
+                and heat1_lanes.get(t, -1) != lane
+            ]
+            if not possible_teams:
+                possible_teams = available
+            if possible_teams:
+                team = random.choice(possible_teams)
+                heat_teams[lane] = team
+                assigned.add(team)
+                available.remove(team)
+        heats.append(heat_teams)
+
+    return heats
+
+def generate_event_draw(teams, num_lanes):
+    if teams and num_lanes > 0:
+        heat1 = generate_heat_draw(teams.copy(), num_lanes)
+        heat1_opponents = get_race_opponents(heat1)
+        heat1_lanes = get_team_lanes(heat1)
+        last_two_teams = get_last_two_race_teams(heat1)
+        heat2 = generate_heat2_draw(teams, num_lanes, heat1, heat1_opponents, heat1_lanes, last_two_teams)
+        return heat1, heat2
+    return [], []

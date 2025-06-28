@@ -7,8 +7,12 @@ finals_draw_bp = Blueprint('finals_draw', __name__)
 
 FINALS_UPLOAD_HTML = '''
 <!doctype html>
-<title>Create a Finals draw by uploading heats results</title>
-<h2>Create a Finals draw by uploading heats results</h2>
+<title>Finals Draw Creation</title>
+<h2>Create a Finals Draw</h2>
+<label>Upload with or without places and times</label>
+<br>
+<label>You are then able to edit the places and time</label>
+<div style="height:8px;"></div>
 <style>
 .upload-btn, .file-btn {
     background-color: #28a745;
@@ -30,14 +34,14 @@ input[type="file"] {
 </style>
 
 <form method=post enctype=multipart/form-data>
-  <label for="finals_csv" class="file-btn">Choose File</label>
+  <label for="finals_csv" class="file-btn">Choose Upload File</label>
   <input type="file" id="finals_csv" name="finals_csv" required onchange="document.getElementById('file-name').textContent = this.files[0]?.name || '';">
-  <input type="submit" value="Upload" class="upload-btn">
+  <input type="submit" value="Upload File" class="upload-btn">
 </form>
 <div id="file-name" style="margin-top:8px; color:#155724; font-weight:bold;"></div>
 
 {% if table %}
-  <h3>Edit Times</h3>
+  <h3>Edit Places & Times</h3>
   <form method="post">
     <textarea name="csv_content" hidden>{{ csv_content }}</textarea>
     <table border="1" cellpadding="4">
@@ -209,6 +213,10 @@ def finals_draw():
     return render_template_string(FINALS_UPLOAD_HTML + '''
     {% if division_groups %}
       <h3>Combined Times by Division (Heat 1 + Heat 2)</h3>
+      <label>The table below shows the combined times for each team in each division, ranked first to last.</label>
+      <Br>
+      <div style="height:8px;"></div>                            
+      <label>For this calculation the times are added together.</label>                                                                                   
       {% for division, rows in division_groups.items() %}
         <h4>{{ division }}</h4>
         <table border="1" cellpadding="4">
@@ -231,6 +239,8 @@ def finals_draw():
       {% endfor %}
       <hr>
       <h3>Finals Draw</h3>
+      <Label>To create the finals draw, please enter the number of lanes for each division.</Label>        
+      <div style="height:8px;"></div>                                                
       <form method="post">
         <textarea name="csv_content" hidden>{{ csv_content }}</textarea>
         {% for division, rows in division_groups.items() %}
@@ -238,6 +248,7 @@ def finals_draw():
           <input type="number" name="lanes_{{ division }}" min="1" required>
           <br>
         {% endfor %}
+        <div style="height:8px;"></div>                          
         <button type="submit" style="background-color:#28a745; color:white; padding:8px 16px; border:none; border-radius:4px;">Generate Finals Draw</button>
       </form>
     {% endif %}
@@ -251,16 +262,14 @@ def finals_draw():
             <tr>
               <th>Lane</th>
               <th>Position</th>
-              <th>Team Name</th>
-              <th>Total Time</th>
-            </tr>
+              <th style="width:220px;">Team Name</th>
+              </tr>
             {% for lane_idx in range(race|length) %}
               <tr>
                 <td>{{ lane_idx + 1 }}</td>
                 <td>{{ race[lane_idx][0] }}</td>
                 <td>{{ race[lane_idx][1] }}</td>
-                <td></td>  {# Empty Total Time cell #}
-              </tr>
+                </tr>
             {% endfor %}
           </table>
         {% endfor %}

@@ -165,9 +165,16 @@ HTML_FORM = '''
       {% endfor %}
     </table>
   {% endfor %}
-  <form action="{{ url_for('race_draw.export_csv') }}" method="post">
-    <button type="submit" class="file-btn">Export as CSV</button>
-  </form>
+  {% if heat1 and heat2 %}
+      <form action="{{ url_for('race_draw.export_csv') }}" method="post" style="margin-top:20px;">
+        <button type="submit" class="file-btn">Export as CSV</button>
+      </form>
+    {% endif %}
+    <form action="{{ url_for('selector') }}" method="get" style="margin-top:20px;">
+      <button type="submit" style="background-color:#6c757d; color:white; padding:8px 16px; border:none; border-radius:4px;">
+        Back to Selector Page
+      </button>
+    </form>
 {% endif %}
 <style>
 .upload-btn {

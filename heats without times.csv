@@ -1,33 +1,33 @@
-Heat,Race,Lane,Team Name,Division,time
-Heat 1,Race 1,1,City Dragons,Mixed,62.96
-,,2,Steel Dragons,Mixed,70.63
-,,3,Paddle Waikato Pango,Mixed,62.4
-,,4,Lion DBC,Mixed,60.54
-,Race 2,1,Busting with Life,Womens,69.26
-,,2,Jaffettes,Womens,68.24
-,,3,Dragon Riders,Mixed,59.65
-,,4,Random Jaffas,Mixed,63.63
-,Race 3,1,Zombies Dawnraiders,Mixed,60.5
-,,2,Paddle Waikato Whero,Mixed,59.73
-,,3,The Pink Dragons,Womens,70.88
-,,4,Alon Dragon,Mixed,63.33
-,Race 4,1,Women of Steel,Womens,75.03
-,,2,,,
-,,3,,,
-,,4,,,
-Heat 2,Race 1,1,Steel Dragons,Mixed,64.66
-,,2,Busting with Life,Womens,72.12
-,,3,Zombies Dawnraiders,Mixed,62.32
-,,4,Women of Steel,Womens,69
-,Race 2,1,Jaffettes,Womens,71.26
-,,2,City Dragons,Mixed,64.76
-,,3,Paddle Waikato Whero,Mixed,67.15
-,,4,Lion DBC,Mixed,64.65
-,Race 3,1,Dragon Riders,Mixed,62.65
-,,2,The Pink Dragons,Womens,74.54
-,,3,Paddle Waikato Pango,Mixed,65.06
-,,4,Random Jaffas,Mixed,64.1
-,Race 4,1,Alon Dragon,Mixed,66.01
-,,2,,,
-,,3,,,
-,,4,,,
+Heat,Race,Lane,Team Name,Division,Place,time
+Heat 1,Race 1,1,City Dragons,Mixed,,
+,,2,Steel Dragons,Mixed,,
+,,3,Paddle Waikato Pango,Mixed,,
+,,4,Lion DBC,Mixed,,
+,Race 2,1,Busting with Life,Womens,,
+,,2,Jaffettes,Womens,,
+,,3,Dragon Riders,Mixed,,
+,,4,Random Jaffas,Mixed,,
+,Race 3,1,Zombies Dawnraiders,Mixed,,
+,,2,Paddle Waikato Whero,Mixed,,
+,,3,The Pink Dragons,Womens,,
+,,4,Alon Dragon,Mixed,,
+,Race 4,1,Women of Steel,Womens,,
+,,2,,,,
+,,3,,,,
+,,4,,,,
+Heat 2,Race 1,1,Steel Dragons,Mixed,,
+,,2,Busting with Life,Womens,,
+,,3,Zombies Dawnraiders,Mixed,,
+,,4,Women of Steel,Womens,,
+,Race 2,1,Jaffettes,Womens,,
+,,2,City Dragons,Mixed,,
+,,3,Paddle Waikato Whero,Mixed,,
+,,4,Lion DBC,Mixed,,
+,Race 3,1,Dragon Riders,Mixed,,
+,,2,The Pink Dragons,Womens,,
+,,3,Paddle Waikato Pango,Mixed,,
+,,4,Random Jaffas,Mixed,,
+,Race 4,1,Alon Dragon,Mixed,,
+,,2,,,,
+,,3,,,,
+,,4,,,,

@@ -269,4 +269,11 @@ def finals_draw():
     <form action="{{ url_for('selector') }}" method="get" style="margin-top:20px;">
     <button type="submit" style="background-color:#6c757d; color:white; padding:8px 16px; border:none; border-radius:4px;">Back to Selector Page</button>
 </form>
-    ''', table=table, header=header, division_groups=division_groups, finals_draw=finals_draw, csv_content=csv_content)
+<link rel="manifest" href="{{ url_for('static', filename='manifest.json') }}">
+<meta name="theme-color" content="#007bff">
+<script>
+  if ('serviceWorker' in navigator) {
+    navigator.serviceWorker.register('{{ url_for('static', filename='service-worker.js') }}');
+  }
+</script>
+''', table=table, header=header, division_groups=division_groups, finals_draw=finals_draw, csv_content=csv_content)

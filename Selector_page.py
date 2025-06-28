@@ -10,7 +10,18 @@ app.register_blueprint(finals_draw_bp)
 
 SELECTOR_HTML = '''
 <!doctype html>
-<title>Selector Page</title>
+<html>
+<head>
+  <title>Selector Page</title>
+  <link rel="manifest" href="{{ url_for('static', filename='manifest.json') }}">
+  <meta name="theme-color" content="#007bff">
+  <script>
+    if ('serviceWorker' in navigator) {
+      navigator.serviceWorker.register('{{ url_for('static', filename='service-worker.js') }}');
+    }
+  </script>
+</head>
+<body>
 <h2>Please choose an action:</h2>
 <div style="width:400px; margin-left:0;">
   <form action="{{ url_for('race_draw.race_draw') }}" method="get" style="margin-bottom:12px;">
@@ -23,6 +34,8 @@ SELECTOR_HTML = '''
       <button type="submit" style="width:100%; min-width:200px; background-color:#28a745; color:white; padding:10px 20px; border:none; border-radius:4px; text-align:left;">Create a Finals Draw</button>
   </form>
 </div>
+</body>
+</html>
 '''
 
 FINALS_UPLOAD_HTML = '''

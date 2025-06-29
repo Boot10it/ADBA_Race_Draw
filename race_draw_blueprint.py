@@ -237,6 +237,10 @@ document.getElementById('add-row-btn').onclick = function() {
         <option value="Open">Open</option>
     </select>`;
 };
+// Service worker registration for PWA
+if ('serviceWorker' in navigator) {
+  navigator.serviceWorker.register('{{ url_for('static', filename='service-worker.js') }}');
+}
 </script>
 '''
 
@@ -502,6 +506,10 @@ document.getElementById('add-row-btn').onclick = function() {
         <option value="Open">Open</option>
     </select>`;
 };
+// Service worker registration for PWA
+if ('serviceWorker' in navigator) {
+  navigator.serviceWorker.register('{{ url_for('static', filename='service-worker.js') }}');
+}
 </script>
     """, heat1=heat1, heat2=heat2, errors=errors, teams=teams, num_lanes=num_lanes)
 
@@ -559,3 +567,26 @@ def export_manual_csv():
         as_attachment=True,
         download_name='manual_heats.csv'
     )
+
+@race_draw_bp.route('/manifest.json')
+def manifest():
+    return {
+        "name": "Race Draw Generator",
+        "short_name": "RaceDraw",
+        "start_url": "/race_draw",
+        "display": "standalone",
+        "background_color": "#ffffff",
+        "theme_color": "#007bff",
+        "icons": [
+            {
+                "src": "/static/icons/icon-192.png",
+                "sizes": "192x192",
+                "type": "image/png"
+            },
+            {
+                "src": "/static/icons/icon-512.png",
+                "sizes": "512x512",
+                "type": "image/png"
+            }
+        ]
+    }

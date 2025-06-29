@@ -74,7 +74,7 @@ input[type="file"] {
     </table>
     <table style="width:100%; border:none;">
       <tr>
-        <td style="text-align: left; border:none;" colspan="{{ header|length }}">
+        <td style="text-align: left; border:none;" colspan="{{ header|length if  header|length if header else 1 }}">
           <button type="submit" name="edit_times" value="1" class="upload-btn">Save Times</button>
         </td>
       </tr>
@@ -250,7 +250,7 @@ def finals_draw():
         <table border="1" cellpadding="4">
           <tr>
             <th>Position</th>
-            <th>Team Name</th>
+            <th style="width:220px;">Team Name</th>
             <th>Division</th>
             <th>Heat 1 Time</th>
             <th>Heat 2 Time</th>
@@ -258,18 +258,23 @@ def finals_draw():
           </tr>
           {% for row in rows %}
             <tr>
-              {% for cell in row %}
-                <td>{{ cell }}</td>
-              {% endfor %}
+              <td>{{ row[0] }}</td>
+              <td style="width:220px;">{{ row[1] }}</td>   {# Team Name column #}
+              <td>{{ row[2] }}</td>
+              <td>{{ row[3] }}</td>
+              <td>{{ row[4] }}</td>
+              <td>{{ row[5] }}</td>
+              </tr>
             </tr>
           {% endfor %}
         </table>
       {% endfor %}
       <hr>
+      <a id="finals-draw"></a>
       <h3>Finals Draw</h3>
       <Label>To create the finals draw, please enter the number of lanes for each division.</Label>        
       <div style="height:8px;"></div>                                                
-      <form method="post">
+      <form method="post" action="#finals-draw">
         <textarea name="csv_content" hidden>{{ csv_content }}</textarea>
         {% for division, rows in division_groups.items() %}
           <label for="lanes_{{ division }}">Number of lanes for {{ division }}:</label>
@@ -320,6 +325,11 @@ def finals_draw():
 <script>
   if ('serviceWorker' in navigator) {
     navigator.serviceWorker.register('{{ url_for('static', filename='service-worker.js') }}');
+  }
+
+  // If the URL contains the anchor, scroll to it
+  if (window.location.hash === "#finals-draw") {
+    document.getElementById("finals-draw").scrollIntoView({behavior: "smooth"});
   }
 </script>
 ''',
@@ -373,3 +383,24 @@ def exportfinal_csv():
         as_attachment=True,
         download_name='finals_draw.csv'
     )
+
+{
+  "name": "ADBA Finals Draw",
+  "short_name": "FinalsDraw",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#ffffff",
+  "theme_color": "#007bff",
+  "icons": [
+    {
+      "src": "/static/icons/icon-192.png",
+      "sizes": "192x192",
+      "type": "image/png"
+    },
+    {
+      "src": "/static/icons/icon-512.png",
+      "sizes": "512x512",
+      "type": "image/png"
+    }
+  ]
+}

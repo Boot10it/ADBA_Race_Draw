@@ -552,8 +552,8 @@ def export_manual_csv():
                     heat_label if race_idx == 1 and lane_idx == 1 else '',
                     f'Race {race_number}' if lane_idx == 1 else '',
                     lane_idx,
-                    team['name'] if team else '',
-                    team['division'] if team else '',
+                    team['Name'] if team else '',
+                    team['Division'] if team else '',
                     '',  # Place (empty)
                     ''   # time (empty)
                 ]

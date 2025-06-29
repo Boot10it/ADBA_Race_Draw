@@ -1,4 +1,4 @@
-from flask import Blueprint, render_template_string, request, send_file, url_for, redirect
+from flask import Blueprint, render_template_string, request, send_file, url_for, redirect, session
 from io import StringIO, BytesIO
 from collections import defaultdict
 import csv
@@ -208,9 +208,18 @@ def finals_draw():
                     races.append(race)
                 races.reverse()
                 finals_draw[division] = races
+                session['finals_draw'] = finals_draw
+
+    # Calculate last heat race number
+    last_heat_race_number = 0
+    if 'heat1' in session and session['heat1']:
+        last_heat_race_number += len(session['heat1'])
+    if 'heat2' in session and session['heat2']:
+        last_heat_race_number += len(session['heat2'])
 
     # Render
-    return render_template_string(FINALS_UPLOAD_HTML + '''
+    return render_template_string(
+        FINALS_UPLOAD_HTML + '''
     {% if division_groups %}
       <h3>Combined Times by Division (Heat 1 + Heat 2)</h3>
       <label>The table below shows the combined times for each team in each division, ranked first to last.</label>
@@ -254,26 +263,31 @@ def finals_draw():
     {% endif %}
 
     {% if finals_draw %}
+      {% set ns = namespace(global_race_number=race_offset) %}
       {% for division, races in finals_draw.items() %}
         <h4>Finals Draw - {{ division }}</h4>
         {% for race in races %}
-          <b>Race {{ loop.index }}</b>
+          {% set ns.global_race_number = ns.global_race_number + 1 %}
+          <b>Race {{ ns.global_race_number }}</b>
           <table border="1" cellpadding="4">
             <tr>
               <th>Lane</th>
               <th>Position</th>
               <th style="width:220px;">Team Name</th>
-              </tr>
+            </tr>
             {% for lane_idx in range(race|length) %}
               <tr>
                 <td>{{ lane_idx + 1 }}</td>
                 <td>{{ race[lane_idx][0] }}</td>
                 <td>{{ race[lane_idx][1] }}</td>
-                </tr>
+              </tr>
             {% endfor %}
           </table>
         {% endfor %}
       {% endfor %}
+      <form action="{{ url_for('finals_draw.exportfinal_csv') }}" method="post" style="margin-top:20px;">
+        <button type="submit" class="file-btn">Export Finals Draw as CSV</button>
+      </form>
     {% endif %}
     <form action="{{ url_for('selector') }}" method="get" style="margin-top:20px;">
     <button type="submit" style="background-color:#6c757d; color:white; padding:8px 16px; border:none; border-radius:4px;">Back to Selector Page</button>
@@ -285,4 +299,51 @@ def finals_draw():
     navigator.serviceWorker.register('{{ url_for('static', filename='service-worker.js') }}');
   }
 </script>
-''', table=table, header=header, division_groups=division_groups, finals_draw=finals_draw, csv_content=csv_content)
+''',
+        table=table,
+        header=header,
+        division_groups=division_groups,
+        finals_draw=finals_draw,
+        csv_content=csv_content,
+        last_heat_race_number=last_heat_race_number,
+        race_offset=last_heat_race_number
+    )
+
+@finals_draw_bp.route('/finals_draw/exportfinal_csv', methods=['POST'])
+def exportfinal_csv():
+    finals_draw = session.get('finals_draw')
+    if not finals_draw:
+        return "No finals draw data to export.", 400
+
+    # Recalculate last_heat_race_number from session
+    last_heat_race_number = 0
+    if 'heat1' in session and session['heat1']:
+        last_heat_race_number += len(session['heat1'])
+    if 'heat2' in session and session['heat2']:
+        last_heat_race_number += len(session['heat2'])
+
+    output = StringIO()
+    writer = csv.writer(output, lineterminator='\n')
+    writer.writerow(['Division', 'Race', 'Lane', 'Position', 'Team Name', 'Time'])
+
+    race_number = last_heat_race_number
+    for division, races in finals_draw.items():
+        for race in races:
+            race_number += 1
+            for lane_idx, team in enumerate(race, start=1):
+                if team:
+                    writer.writerow([
+                        division,
+                        f'Race {race_number}',
+                        lane_idx,
+                        team[0],  # Position
+                        team[1],  # Team Name
+                        team[6] if len(team) > 6 else ''  # Time, if available
+                    ])
+    output.seek(0)
+    return send_file(
+        BytesIO(output.getvalue().encode()),
+        mimetype='text/csv',
+        as_attachment=True,
+        download_name='finals_draw.csv'
+    )

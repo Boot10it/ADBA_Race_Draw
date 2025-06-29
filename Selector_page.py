@@ -12,7 +12,7 @@ SELECTOR_HTML = '''
 <!doctype html>
 <html>
 <head>
-  <title>Selector Page</title>
+  <title>ADBA Race Draw Generator</title>
   <link rel="manifest" href="{{ url_for('static', filename='manifest.json') }}">
   <meta name="theme-color" content="#007bff">
   <script>
@@ -22,6 +22,7 @@ SELECTOR_HTML = '''
   </script>
 </head>
 <body>
+<img src="{{ url_for('static', filename='ADBALogo.png') }}" alt="Logo" style="max-width:300px; display:block; margin-bottom:16px;margin-left:0">
 <h2>Please choose an action:</h2>
 <div style="width:400px; margin-left:0;">
   <form action="{{ url_for('race_draw.race_draw') }}" method="get" style="margin-bottom:12px;">
@@ -33,7 +34,15 @@ SELECTOR_HTML = '''
   <form action="{{ url_for('finals_draw.finals_draw') }}" method="get">
       <button type="submit" style="width:100%; min-width:200px; background-color:#28a745; color:white; padding:10px 20px; border:none; border-radius:4px; text-align:left;">Create a Finals Draw</button>
   </form>
-</div>
+<h2>Current rules with heat generation:</h2>
+<lable>1. Teams, where possible, will not race the same teams in consecutive heats.</lable><br>
+<div style="height:8px;"></div>
+<lable>2. Teams, where possible, will not race in the same lane.</lable><br>
+<div style="height:8px;"></div>
+<lable>3. Teams, where possible, who raced in the last two races of the preceding heat will not race in first two races of the next heat.</lable><br>
+<h2>Current calculation for finals time:</h2>
+<lable>1. Times from heat 1 and heat 2 are combined.</lable><br>
+  </div>
 </body>
 </html>
 '''

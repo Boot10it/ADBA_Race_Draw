@@ -52,7 +52,8 @@ input[type="file"] {
         <th>Team Name</th>
         <th>Division</th>
         <th style="width:60px;">Place</th>
-        <th>Time</th>
+        <th style="width:100px;">Time</th>   
+        # Set width for time and placehere #
       </tr>
       {% for row in table %}
         {% set i = loop.index0 %}
@@ -65,8 +66,8 @@ input[type="file"] {
           <td style="width:60px;">
             <input type="text" name="place_{{ i }}" value="{{ request.form.get('place_' ~ i, row[5]) }}" style="width:50px;">
           </td>
-          <td>
-            <input type="text" name="time_{{ i }}" value="{{ request.form.get('time_' ~ i, row[6]) }}">
+          <td style="width:100px;">
+            <input type="text" name="time_{{ i }}" value="{{ request.form.get('time_' ~ i, row[6]) }}" style="width:90px;">
           </td>
         </tr>
       {% endfor %}
@@ -217,7 +218,25 @@ def finals_draw():
     if 'heat2' in session and session['heat2']:
         last_heat_race_number += len(session['heat2'])
 
+    # Recalculate last_edit_race_number from session['edit_table'] or similar
+    last_edit_race_number = 0
+    if 'edit_table' in session:
+        table = session['edit_table']
+        race_col_index = 1  # Assuming 2nd column is 'Race'
+        for row in table:
+            try:
+                race_num = int(row[race_col_index])
+                if race_num > last_edit_race_number:
+                    last_edit_race_number = race_num
+            except (ValueError, IndexError):
+                continue
+    else:
+        last_edit_race_number = 0  # fallback
+
+    session['last_edit_race_number'] = last_edit_race_number
+
     # Render
+    header = header or []
     return render_template_string(
         FINALS_UPLOAD_HTML + '''
     {% if division_groups %}
@@ -274,12 +293,16 @@ def finals_draw():
               <th>Lane</th>
               <th>Position</th>
               <th style="width:220px;">Team Name</th>
+              <th style="width:120px;">Time</th>  {# Set your desired width here #}
             </tr>
             {% for lane_idx in range(race|length) %}
               <tr>
                 <td>{{ lane_idx + 1 }}</td>
                 <td>{{ race[lane_idx][0] }}</td>
                 <td>{{ race[lane_idx][1] }}</td>
+                <td style="width:120px;">
+                  {{ race[lane_idx][6] if race[lane_idx]|length > 6 else '' }}
+                </td>
               </tr>
             {% endfor %}
           </table>
@@ -305,9 +328,12 @@ def finals_draw():
         division_groups=division_groups,
         finals_draw=finals_draw,
         csv_content=csv_content,
-        last_heat_race_number=last_heat_race_number,
-        race_offset=last_heat_race_number
+        last_edit_race_number=last_edit_race_number,
+        race_offset=last_edit_race_number  # Use this as the offset for finals
     )
+
+    # After building 'table' from the CSV (right after your for-loop that fills 'table')
+    session['edit_table'] = table
 
 @finals_draw_bp.route('/finals_draw/exportfinal_csv', methods=['POST'])
 def exportfinal_csv():
@@ -326,7 +352,7 @@ def exportfinal_csv():
     writer = csv.writer(output, lineterminator='\n')
     writer.writerow(['Division', 'Race', 'Lane', 'Position', 'Team Name', 'Time'])
 
-    race_number = last_heat_race_number
+    race_number = session.get('last_edit_race_number', 0)
     for division, races in finals_draw.items():
         for race in races:
             race_number += 1

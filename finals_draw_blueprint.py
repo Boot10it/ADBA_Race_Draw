@@ -1,4 +1,4 @@
-from flask import Blueprint, render_template_string, request, send_file, url_for, redirect
+from flask import Blueprint, render_template_string, request, send_file, url_for, redirect, session
 from io import StringIO, BytesIO
 from collections import defaultdict
 import csv
@@ -7,8 +7,12 @@ finals_draw_bp = Blueprint('finals_draw', __name__)
 
 FINALS_UPLOAD_HTML = '''
 <!doctype html>
-<title>Create a Finals draw by uploading heats results</title>
-<h2>Create a Finals draw by uploading heats results</h2>
+<title>Finals Draw Creation</title>
+<h2>Create a Finals Draw</h2>
+<label>Upload with or without places and times</label>
+<br>
+<label>You are then able to edit the places and time</label>
+<div style="height:8px;"></div>
 <style>
 .upload-btn, .file-btn {
     background-color: #28a745;
@@ -30,14 +34,14 @@ input[type="file"] {
 </style>
 
 <form method=post enctype=multipart/form-data>
-  <label for="finals_csv" class="file-btn">Choose File</label>
+  <label for="finals_csv" class="file-btn">Choose Upload File</label>
   <input type="file" id="finals_csv" name="finals_csv" required onchange="document.getElementById('file-name').textContent = this.files[0]?.name || '';">
-  <input type="submit" value="Upload" class="upload-btn">
+  <input type="submit" value="Upload File" class="upload-btn">
 </form>
 <div id="file-name" style="margin-top:8px; color:#155724; font-weight:bold;"></div>
 
 {% if table %}
-  <h3>Edit Times</h3>
+  <h3>Edit Places & Times</h3>
   <form method="post">
     <textarea name="csv_content" hidden>{{ csv_content }}</textarea>
     <table border="1" cellpadding="4">
@@ -48,7 +52,8 @@ input[type="file"] {
         <th>Team Name</th>
         <th>Division</th>
         <th style="width:60px;">Place</th>
-        <th>Time</th>
+        <th style="width:100px;">Time</th>   
+        # Set width for time and placehere #
       </tr>
       {% for row in table %}
         {% set i = loop.index0 %}
@@ -61,15 +66,15 @@ input[type="file"] {
           <td style="width:60px;">
             <input type="text" name="place_{{ i }}" value="{{ request.form.get('place_' ~ i, row[5]) }}" style="width:50px;">
           </td>
-          <td>
-            <input type="text" name="time_{{ i }}" value="{{ request.form.get('time_' ~ i, row[6]) }}">
+          <td style="width:100px;">
+            <input type="text" name="time_{{ i }}" value="{{ request.form.get('time_' ~ i, row[6]) }}" style="width:90px;">
           </td>
         </tr>
       {% endfor %}
     </table>
     <table style="width:100%; border:none;">
       <tr>
-        <td style="text-align: left; border:none;" colspan="{{ header|length }}">
+        <td style="text-align: left; border:none;" colspan="{{ header|length if  header|length if header else 1 }}">
           <button type="submit" name="edit_times" value="1" class="upload-btn">Save Times</button>
         </td>
       </tr>
@@ -204,17 +209,48 @@ def finals_draw():
                     races.append(race)
                 races.reverse()
                 finals_draw[division] = races
+                session['finals_draw'] = finals_draw
+
+    # Calculate last heat race number
+    last_heat_race_number = 0
+    if 'heat1' in session and session['heat1']:
+        last_heat_race_number += len(session['heat1'])
+    if 'heat2' in session and session['heat2']:
+        last_heat_race_number += len(session['heat2'])
+
+    # Recalculate last_edit_race_number from session['edit_table'] or similar
+    last_edit_race_number = 0
+    if 'edit_table' in session:
+        table = session['edit_table']
+        race_col_index = 1  # Assuming 2nd column is 'Race'
+        for row in table:
+            try:
+                race_num = int(row[race_col_index])
+                if race_num > last_edit_race_number:
+                    last_edit_race_number = race_num
+            except (ValueError, IndexError):
+                continue
+    else:
+        last_edit_race_number = 0  # fallback
+
+    session['last_edit_race_number'] = last_edit_race_number
 
     # Render
-    return render_template_string(FINALS_UPLOAD_HTML + '''
+    header = header or []
+    return render_template_string(
+        FINALS_UPLOAD_HTML + '''
     {% if division_groups %}
       <h3>Combined Times by Division (Heat 1 + Heat 2)</h3>
+      <label>The table below shows the combined times for each team in each division, ranked first to last.</label>
+      <Br>
+      <div style="height:8px;"></div>                            
+      <label>For this calculation the times are added together.</label>                                                                                   
       {% for division, rows in division_groups.items() %}
         <h4>{{ division }}</h4>
         <table border="1" cellpadding="4">
           <tr>
             <th>Position</th>
-            <th>Team Name</th>
+            <th style="width:220px;">Team Name</th>
             <th>Division</th>
             <th>Heat 1 Time</th>
             <th>Heat 2 Time</th>
@@ -222,51 +258,149 @@ def finals_draw():
           </tr>
           {% for row in rows %}
             <tr>
-              {% for cell in row %}
-                <td>{{ cell }}</td>
-              {% endfor %}
+              <td>{{ row[0] }}</td>
+              <td style="width:220px;">{{ row[1] }}</td>   {# Team Name column #}
+              <td>{{ row[2] }}</td>
+              <td>{{ row[3] }}</td>
+              <td>{{ row[4] }}</td>
+              <td>{{ row[5] }}</td>
+              </tr>
             </tr>
           {% endfor %}
         </table>
       {% endfor %}
       <hr>
+      <a id="finals-draw"></a>
       <h3>Finals Draw</h3>
-      <form method="post">
+      <Label>To create the finals draw, please enter the number of lanes for each division.</Label>        
+      <div style="height:8px;"></div>                                                
+      <form method="post" action="#finals-draw">
         <textarea name="csv_content" hidden>{{ csv_content }}</textarea>
         {% for division, rows in division_groups.items() %}
           <label for="lanes_{{ division }}">Number of lanes for {{ division }}:</label>
           <input type="number" name="lanes_{{ division }}" min="1" required>
           <br>
         {% endfor %}
+        <div style="height:8px;"></div>                          
         <button type="submit" style="background-color:#28a745; color:white; padding:8px 16px; border:none; border-radius:4px;">Generate Finals Draw</button>
       </form>
     {% endif %}
 
     {% if finals_draw %}
+      {% set ns = namespace(global_race_number=race_offset) %}
       {% for division, races in finals_draw.items() %}
         <h4>Finals Draw - {{ division }}</h4>
         {% for race in races %}
-          <b>Race {{ loop.index }}</b>
+          {% set ns.global_race_number = ns.global_race_number + 1 %}
+          <b>Race {{ ns.global_race_number }}</b>
           <table border="1" cellpadding="4">
             <tr>
               <th>Lane</th>
               <th>Position</th>
-              <th>Team Name</th>
-              <th>Total Time</th>
+              <th style="width:220px;">Team Name</th>
+              <th style="width:120px;">Time</th>  {# Set your desired width here #}
             </tr>
             {% for lane_idx in range(race|length) %}
               <tr>
                 <td>{{ lane_idx + 1 }}</td>
                 <td>{{ race[lane_idx][0] }}</td>
                 <td>{{ race[lane_idx][1] }}</td>
-                <td></td>  {# Empty Total Time cell #}
+                <td style="width:120px;">
+                  {{ race[lane_idx][6] if race[lane_idx]|length > 6 else '' }}
+                </td>
               </tr>
             {% endfor %}
           </table>
         {% endfor %}
       {% endfor %}
+      <form action="{{ url_for('finals_draw.exportfinal_csv') }}" method="post" style="margin-top:20px;">
+        <button type="submit" class="file-btn">Export Finals Draw as CSV</button>
+      </form>
     {% endif %}
     <form action="{{ url_for('selector') }}" method="get" style="margin-top:20px;">
     <button type="submit" style="background-color:#6c757d; color:white; padding:8px 16px; border:none; border-radius:4px;">Back to Selector Page</button>
 </form>
-    ''', table=table, header=header, division_groups=division_groups, finals_draw=finals_draw, csv_content=csv_content)
+<link rel="manifest" href="{{ url_for('static', filename='manifest.json') }}">
+<meta name="theme-color" content="#007bff">
+<script>
+  if ('serviceWorker' in navigator) {
+    navigator.serviceWorker.register('{{ url_for('static', filename='service-worker.js') }}');
+  }
+
+  // If the URL contains the anchor, scroll to it
+  if (window.location.hash === "#finals-draw") {
+    document.getElementById("finals-draw").scrollIntoView({behavior: "smooth"});
+  }
+</script>
+''',
+        table=table,
+        header=header,
+        division_groups=division_groups,
+        finals_draw=finals_draw,
+        csv_content=csv_content,
+        last_edit_race_number=last_edit_race_number,
+        race_offset=last_edit_race_number  # Use this as the offset for finals
+    )
+
+    # After building 'table' from the CSV (right after your for-loop that fills 'table')
+    session['edit_table'] = table
+
+@finals_draw_bp.route('/finals_draw/exportfinal_csv', methods=['POST'])
+def exportfinal_csv():
+    finals_draw = session.get('finals_draw')
+    if not finals_draw:
+        return "No finals draw data to export.", 400
+
+    # Recalculate last_heat_race_number from session
+    last_heat_race_number = 0
+    if 'heat1' in session and session['heat1']:
+        last_heat_race_number += len(session['heat1'])
+    if 'heat2' in session and session['heat2']:
+        last_heat_race_number += len(session['heat2'])
+
+    output = StringIO()
+    writer = csv.writer(output, lineterminator='\n')
+    writer.writerow(['Division', 'Race', 'Lane', 'Position', 'Team Name', 'Time'])
+
+    race_number = session.get('last_edit_race_number', 0)
+    for division, races in finals_draw.items():
+        for race in races:
+            race_number += 1
+            for lane_idx, team in enumerate(race, start=1):
+                if team:
+                    writer.writerow([
+                        division,
+                        f'Race {race_number}',
+                        lane_idx,
+                        team[0],  # Position
+                        team[1],  # Team Name
+                        team[6] if len(team) > 6 else ''  # Time, if available
+                    ])
+    output.seek(0)
+    return send_file(
+        BytesIO(output.getvalue().encode()),
+        mimetype='text/csv',
+        as_attachment=True,
+        download_name='finals_draw.csv'
+    )
+
+{
+  "name": "ADBA Finals Draw",
+  "short_name": "FinalsDraw",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#ffffff",
+  "theme_color": "#007bff",
+  "icons": [
+    {
+      "src": "/static/icons/icon-192.png",
+      "sizes": "192x192",
+      "type": "image/png"
+    },
+    {
+      "src": "/static/icons/icon-512.png",
+      "sizes": "512x512",
+      "type": "image/png"
+    }
+  ]
+}

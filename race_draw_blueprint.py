@@ -102,21 +102,28 @@ def validate_teams_csv(reader):
 HTML_FORM = '''
 <!doctype html>
 <title>Race Draw Generator</title>
-<h2>Upload Teams CSV (with "name" and "division" columns) and Enter Number of Lanes</h2>
-<form method=post enctype=multipart/form-data>
-  <label for="teams_csv" class="file-btn">Choose File</label>
-  <input type="file" id="teams_csv" name="teams_csv" required onchange="document.getElementById('file-name').textContent = this.files[0]?.name || '';">
-  <input type="number" name="num_lanes" min="1" required placeholder="Number of lanes">
-  <input type="submit" value="Generate" class="file-btn">
+<h2>Creating a Race Draw using a Template</h2>
+<label>Either Download the template, fill it out and upload it</label>
+<div style="height:8px;"></div>
+<form action="{{ url_for('race_draw.download_template') }}" method="get" style="margin-bottom:16px;">
+  <button type="submit" class="file-btn">Download Template</button>
 </form>
-<div id="file-name" style="margin-top:8px; color:#155724; font-weight:bold;"></div>
-
+<h3>OR</h3>
+<label>Create a CSV (with "Name" and "Division" columns)</label>
+<div style="height:12px;"></div>
+<form method="post" enctype="multipart/form-data">
+  <label for="teams_csv" class="file-btn" style="margin-bottom:12px;">Choose Upload File</label>
+  <input type="file" id="teams_csv" name="teams_csv" required onchange="document.getElementById('file-name').textContent = this.files[0]?.name || '';">
+  <div id="file-name" style="margin-top:12px; color:#155724; font-weight:bold;"></div>
+  <input type="number" name="num_lanes" min="1" required placeholder="Enter Number of lanes" style="margin-top:12px; margin-bottom:12px;">
+  <br>
+  <input type="submit" value="Generate Race Draw for Mixed Divisional Heats" class="file-btn">
+</form>
 <form action="{{ url_for('selector') }}" method="get" style="margin-top:20px;">
   <button type="submit" style="background-color:#6c757d; color:white; padding:8px 16px; border:none; border-radius:4px;">
       Back to Selector Page
   </button>
 </form>
-
 {% if errors %}
   <div style="color: red;">
     <h3>CSV Errors:</h3>
@@ -165,9 +172,16 @@ HTML_FORM = '''
       {% endfor %}
     </table>
   {% endfor %}
-  <form action="{{ url_for('race_draw.export_csv') }}" method="post">
-    <button type="submit" class="file-btn">Export as CSV</button>
-  </form>
+  {% if heat1 and heat2 %}
+      <form action="{{ url_for('race_draw.export_csv') }}" method="post" style="margin-top:20px;">
+        <button type="submit" class="file-btn">Export as CSV</button>
+      </form>
+    {% endif %}
+    <form action="{{ url_for('selector') }}" method="get" style="margin-top:20px;">
+      <button type="submit" style="background-color:#6c757d; color:white; padding:8px 16px; border:none; border-radius:4px;">
+        Back to Selector Page
+      </button>
+    </form>
 {% endif %}
 <style>
 .upload-btn {
@@ -223,6 +237,10 @@ document.getElementById('add-row-btn').onclick = function() {
         <option value="Open">Open</option>
     </select>`;
 };
+// Service worker registration for PWA
+if ('serviceWorker' in navigator) {
+  navigator.serviceWorker.register('{{ url_for('static', filename='service-worker.js') }}');
+}
 </script>
 '''
 
@@ -259,26 +277,29 @@ def export_csv():
     writer = csv.writer(output, lineterminator='\n')
 
     # Write header
-    writer.writerow(['Heat', 'Race', 'Lane', 'Team Name', 'Division', 'time'])
+    writer.writerow(['Heat', 'Race', 'Lane', 'Team Name', 'Division','Place', 'time'])
 
     # Helper to write a heat
-    def write_heat(heat, heat_label):
+    def write_heat(heat, heat_label, race_offset=0):
         if not heat:
             return
         for race_idx, race in enumerate(heat, start=1):
+            race_number = race_offset + race_idx
             for lane_idx, team in enumerate(race, start=1):
                 row = [
                     heat_label if race_idx == 1 and lane_idx == 1 else '',
-                    f'Race {race_idx}' if lane_idx == 1 else '',
+                    f'Race {race_number}' if lane_idx == 1 else '',
                     lane_idx,
                     team['name'] if team else '',
                     team['division'] if team else '',
-                    ''  # Empty "time" column
+                    '',  # Empty "Place" column
+                    ''   # Empty "time" column
                 ]
                 writer.writerow(row)
 
-    write_heat(heat1, 'Heat 1')
-    write_heat(heat2, 'Heat 2')
+    heat1_race_count = len(heat1) if heat1 else 0
+    write_heat(heat1, 'Heat 1', race_offset=0)
+    write_heat(heat2, 'Heat 2', race_offset=heat1_race_count)
 
     output.seek(0)
     return send_file(
@@ -335,6 +356,8 @@ def race_draw_manual():
             heat1_lanes = get_team_lanes(heat1)
             last_two_teams = get_last_two_race_teams(heat1)
             heat2 = generate_heat2_draw(teams, num_lanes, heat1_opponents, heat1_lanes, last_two_teams)
+            session['manual_heat1'] = heat1
+            session['manual_heat2'] = heat2            
     else:
         teams = default_teams
         num_lanes = ''
@@ -343,7 +366,7 @@ def race_draw_manual():
     <title>Create a Race Draw (Manual Entry)</title>
     <h2>Create a Race Draw (Manual Entry)</h2>
     <form method="post">
-      <label>Enter teams and divisions:</label>
+      <label>Enter Team Names and select Divisions:</label>
       <table border="1" cellpadding="4" style="margin-bottom:10px;">
         <tr>
           <th>#</th>
@@ -384,10 +407,10 @@ def race_draw_manual():
         {% endfor %}
       </table>
       <button type="button" id="add-row-btn" class="file-btn" style="margin-bottom:10px;">+</button>
+      <label>Add a new line for a team</label>                         
       <br>
-      <label>Number of lanes:</label>
-      <input type="number" name="num_lanes" min="1" required value="{{ num_lanes }}"><br>
-      <input type="submit" value="Generate" class="file-btn" style="margin-top:10px;">
+      <input type="number" name="num_lanes" min="1" required placeholder="Enter Number of lanes" style="margin-top:12px; margin-bottom:12px;"><br>
+      <input type="submit" value="Generate Race Draw for Mixed Divisional Heats" class="file-btn" style="margin-top:10px;">
     </form>
     {% if errors %}
       <div style="color: red;">
@@ -436,6 +459,11 @@ def race_draw_manual():
         </table>
       {% endfor %}
     {% endif %}
+    {% if heat1 and heat2 %}
+        <form action="{{ url_for('race_draw.export_manual_csv') }}" method="post" style="margin-top:20px;">
+          <button type="submit" class="file-btn">Export as CSV</button>
+       </form>
+     {% endif %}                                  
     <form action="{{ url_for('selector') }}" method="get" style="margin-top:20px;">
       <button type="submit" style="background-color:#6c757d; color:white; padding:8px 16px; border:none; border-radius:4px;">
         Back to Selector Page
@@ -478,5 +506,87 @@ document.getElementById('add-row-btn').onclick = function() {
         <option value="Open">Open</option>
     </select>`;
 };
+// Service worker registration for PWA
+if ('serviceWorker' in navigator) {
+  navigator.serviceWorker.register('{{ url_for('static', filename='service-worker.js') }}');
+}
 </script>
     """, heat1=heat1, heat2=heat2, errors=errors, teams=teams, num_lanes=num_lanes)
+
+@race_draw_bp.route('/race_draw/download_template')
+def download_template():
+    output = io.StringIO()
+    writer = csv.writer(output)
+    writer.writerow(['Team Name', 'Division'])
+    writer.writerow(['Team 1', 'Mixed'])
+    writer.writerow(['Team 2', 'Mixed'])
+    writer.writerow(['Team 3', 'Womens'])
+    writer.writerow(['Team 4', 'BCS'])
+    output.seek(0)
+    return send_file(
+        io.BytesIO(output.getvalue().encode()),
+        mimetype='text/csv',
+        as_attachment=True,
+        download_name='race_draw_template.csv'
+    )
+
+@race_draw_bp.route('/race_draw_manual/export_csv', methods=['POST'])
+def export_manual_csv():
+    heat1 = session.get('manual_heat1')
+    heat2 = session.get('manual_heat2')
+    output = io.StringIO()
+    writer = csv.writer(output, lineterminator='\n')
+
+    writer.writerow(['Heat', 'Race', 'Lane', 'Team Name', 'Division', 'Place', 'time'])
+
+    def write_heat(heat, heat_label, race_offset=0):
+        if not heat:
+            return
+        for race_idx, race in enumerate(heat, start=1):
+            race_number = race_offset + race_idx
+            for lane_idx, team in enumerate(race, start=1):
+                row = [
+                    heat_label if race_idx == 1 and lane_idx == 1 else '',
+                    f'Race {race_number}' if lane_idx == 1 else '',
+                    lane_idx,
+                    team['name'] if team else '',
+                    team['division'] if team else '',
+                    '',  # Place (empty)
+                    ''   # time (empty)
+                ]
+                writer.writerow(row)
+
+    heat1_race_count = len(heat1) if heat1 else 0
+    write_heat(heat1, 'Heat 1', race_offset=0)
+    write_heat(heat2, 'Heat 2', race_offset=heat1_race_count)
+
+    output.seek(0)
+    return send_file(
+        io.BytesIO(output.getvalue().encode()),
+        mimetype='text/csv',
+        as_attachment=True,
+        download_name='manual_heats.csv'
+    )
+
+@race_draw_bp.route('/manifest.json')
+def manifest():
+    return {
+        "name": "Race Draw Generator",
+        "short_name": "RaceDraw",
+        "start_url": "/race_draw",
+        "display": "standalone",
+        "background_color": "#ffffff",
+        "theme_color": "#007bff",
+        "icons": [
+            {
+                "src": "/static/icons/icon-192.png",
+                "sizes": "192x192",
+                "type": "image/png"
+            },
+            {
+                "src": "/static/icons/icon-512.png",
+                "sizes": "512x512",
+                "type": "image/png"
+            }
+        ]
+    }

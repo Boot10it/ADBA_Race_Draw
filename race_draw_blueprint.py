@@ -520,7 +520,7 @@ if ('serviceWorker' in navigator) {
 def download_template():
     output = io.StringIO()
     writer = csv.writer(output)
-    writer.writerow(['Team Name', 'Division'])
+    writer.writerow(['Name', 'Division'])
     writer.writerow(['Team 1', 'Mixed'])
     writer.writerow(['Team 2', 'Mixed'])
     writer.writerow(['Team 3', 'Womens'])

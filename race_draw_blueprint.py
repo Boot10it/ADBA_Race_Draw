@@ -172,7 +172,9 @@ HTML_FORM = '''
       {% endfor %}
     </table>
   {% endfor %}
+  
   {% if heat1 and heat2 %}
+      <label>Ensure you check the last two races of the 'Heat 1' and the first two races of 'Heat 2' so the teams are not the same</label> 
       <form action="{{ url_for('race_draw.export_csv') }}" method="post" style="margin-top:20px;">
         <button type="submit" class="file-btn">Export as CSV</button>
       </form>
@@ -456,10 +458,11 @@ def race_draw_manual():
             <td>{{team['division'] if team else ""}}</td>
           </tr>
           {% endfor %}
-        </table>
+        </table>                      
       {% endfor %}
     {% endif %}
     {% if heat1 and heat2 %}
+        <label>Ensure you check the last two races of the 'Heat 1' and the first two races of 'Heat 2' so the teams are not the same</label>                             
         <form action="{{ url_for('race_draw.export_manual_csv') }}" method="post" style="margin-top:20px;">
           <button type="submit" class="file-btn">Export as CSV</button>
        </form>
@@ -517,7 +520,7 @@ if ('serviceWorker' in navigator) {
 def download_template():
     output = io.StringIO()
     writer = csv.writer(output)
-    writer.writerow(['Team Name', 'Division'])
+    writer.writerow(['Name', 'Division'])
     writer.writerow(['Team 1', 'Mixed'])
     writer.writerow(['Team 2', 'Mixed'])
     writer.writerow(['Team 3', 'Womens'])

@@ -26,13 +26,13 @@ def get_team_lanes(heat):
     for race in heat:
         for lane_num, team in enumerate(race):
             if team is not None:
-                team_lanes[team['name']] = lane_num
+                team_lanes[team['Team Name']] = lane_num
     return team_lanes
 
 def get_race_opponents(heat):
     opponents = {}
     for race in heat:
-        teams_in_race = [team['name'] for team in race if team is not None]
+        teams_in_race = [team['Team Name'] for team in race if team is not None]
         for team in teams_in_race:
             if team not in opponents:
                 opponents[team] = set()
@@ -45,7 +45,7 @@ def get_last_two_race_teams(heat):
         last_two = heat[-2] + heat[-1]
     elif len(heat) == 1:
         last_two = heat[-1]
-    return set(team['name'] for team in last_two if team is not None)
+    return set(team['Team Name'] for team in last_two if team is not None)
 
 def generate_heat2_draw(teams, num_lanes, heat1_opponents, heat1_lanes, last_two_teams):
     teams = teams.copy()
@@ -55,32 +55,32 @@ def generate_heat2_draw(teams, num_lanes, heat1_opponents, heat1_lanes, last_two
     assigned = set()
     for race_idx in range(num_races):
         race_teams = [None] * num_lanes
-        available = [t for t in teams if t['name'] not in assigned]
+        available = [t for t in teams if t['Team Name'] not in assigned]  # <-- FIXED HERE
         avoid_set = last_two_teams if race_idx < 2 else set()
         for lane in range(num_lanes):
             possible_teams = [
                 t for t in available
-                if t['name'] not in avoid_set
-                and all(t['name'] not in heat1_opponents.get(other, set()) for other in [rt['name'] for rt in race_teams if rt])
-                and heat1_lanes.get(t['name'], -1) != lane
+                if t['Team Name'] not in avoid_set
+                and all(t['Team Name'] not in heat1_opponents.get(other, set()) for other in [rt['Team Name'] for rt in race_teams if rt])
+                and heat1_lanes.get(t['Team Name'], -1) != lane
             ]
             if not possible_teams:
                 possible_teams = [
                     t for t in available
-                    if all(t['name'] not in heat1_opponents.get(other, set()) for other in [rt['name'] for rt in race_teams if rt])
-                    and heat1_lanes.get(t['name'], -1) != lane
+                    if all(t['Team Name'] not in heat1_opponents.get(other, set()) for other in [rt['Team Name'] for rt in race_teams if rt])
+                    and heat1_lanes.get(t['Team Name'], -1) != lane
                 ]
             if not possible_teams:
                 possible_teams = [
                     t for t in available
-                    if all(t['name'] not in heat1_opponents.get(other, set()) for other in [rt['name'] for rt in race_teams if rt])
+                    if all(t['Team Name'] not in heat1_opponents.get(other, set()) for other in [rt['Team Name'] for rt in race_teams if rt])
                 ]
             if not possible_teams:
                 possible_teams = available
             if possible_teams:
                 team = random.choice(possible_teams)
                 race_teams[lane] = team
-                assigned.add(team['name'])
+                assigned.add(team['Team Name'])
                 available.remove(team)
         races.append(race_teams)
     return races
@@ -89,28 +89,29 @@ def validate_teams_csv(reader):
     errors = []
     teams = []
     for idx, row in enumerate(reader, start=2):  # start=2 to account for header row
-        name = (row.get('name') or '').strip()
-        division = (row.get('division') or '').strip()
+        name = (row.get('Team Name') or '').strip()
+        division = (row.get('Division') or '').strip()
         if not name:
-            errors.append(f"Row {idx}: Missing team name.")
+            errors.append(f"Row {idx}: Missing Team Name.")
         if not division:
-            errors.append(f"Row {idx}: Missing division for team '{name or '[blank]'}'.")
+            errors.append(f"Row {idx}: Missing Division for team '{name or '[blank]'}'.")
         if name and division:
-            teams.append({'name': name, 'division': division})
+            teams.append({'Team Name': name, 'Division': division})
     return teams, errors
 
 HTML_FORM = '''
 <!doctype html>
 <title>Race Draw Generator</title>
 <h2>Creating a Race Draw using a Template</h2>
-<label>Either Download the template, fill it out and upload it</label>
+<label>Either Download the template, fill it out then select Generate.</label>
 <div style="height:8px;"></div>
 <form action="{{ url_for('race_draw.download_template') }}" method="get" style="margin-bottom:16px;">
   <button type="submit" class="file-btn">Download Template</button>
 </form>
 <h3>OR</h3>
-<label>Create a CSV (with "Name" and "Division" columns)</label>
+<label>Create a CSV (with "Team Name" and "Division" columns)</label>
 <div style="height:12px;"></div>
+<img src="{{ url_for('static', filename='Team Names.png') }}" alt="CSV Example" style="max-width:400px; width:100%; height:auto; margin-bottom:16px; border:2px solid black; display:block; margin-left:0;">
 <form method="post" enctype="multipart/form-data">
   <label for="teams_csv" class="file-btn" style="margin-bottom:12px;">Choose Upload File</label>
   <input type="file" id="teams_csv" name="teams_csv" required onchange="document.getElementById('file-name').textContent = this.files[0]?.name || '';">
@@ -134,6 +135,11 @@ HTML_FORM = '''
     </ul>
   </div>
 {% endif %}
+{% if upload_success %}
+  <div style="color: green; font-weight: bold; margin-top: 10px;">
+    Upload successful!
+  </div>
+{% endif %}
 {% if heat1 %}
   <h3>--- Heat 1 Draw ---</h3>
   {% for race in heat1 %}
@@ -147,7 +153,13 @@ HTML_FORM = '''
       {% for team in race %}
       <tr>
         <td>{{loop.index}}</td>
-        <td style="width:220px;">{{team['name'] if team else "EMPTY"}}</td>
+        <td style="width:220px;">
+          {% if team and team['Team Name'] %}
+            {{ team['Team Name'] }}
+          {% else %}
+            <span style="color:red;">EMPTY</span>
+          {% endif %}
+        </td>
         <td>{{team['division'] if team else ""}}</td>
       </tr>
       {% endfor %}
@@ -166,7 +178,13 @@ HTML_FORM = '''
       {% for team in race %}
       <tr>
         <td>{{loop.index}}</td>
-        <td style="width:220px;">{{team['name'] if team else "EMPTY"}}</td>
+        <td style="width:220px;">
+          {% if team and team['Team Name'] %}
+            {{ team['Team Name'] }}
+          {% else %}
+            <span style="color:red;">EMPTY</span>
+          {% endif %}
+        </td>
         <td>{{team['division'] if team else ""}}</td>
       </tr>
       {% endfor %}
@@ -230,8 +248,8 @@ document.getElementById('add-row-btn').onclick = function() {
     var cell2 = row.insertCell(1);
     var cell3 = row.insertCell(2);
     cell1.innerHTML = number;
-    cell2.innerHTML = '<input type="text" name="team_name">';
-    cell3.innerHTML = `<select name="team_division">
+    cell2.innerHTML = '<input type="text" name="Team_Name">';
+    cell3.innerHTML = `<select name="Team_Division">
         <option value="">--Select--</option>
         <option value="Mixed">Mixed</option>
         <option value="Womens">Womens</option>
@@ -250,6 +268,7 @@ if ('serviceWorker' in navigator) {
 def race_draw():
     heat1 = heat2 = None
     errors = []
+    upload_success = False
     if request.method == 'POST':
         file = request.files['teams_csv']
         num_lanes = int(request.form['num_lanes'])
@@ -258,6 +277,8 @@ def race_draw():
             stream = io.StringIO(file.stream.read().decode("utf-8"))
             reader = csv.DictReader(stream)
             teams, errors = validate_teams_csv(reader)
+            if not errors and teams and num_lanes > 0:
+                upload_success = True  # Set flag on successful upload
         if not errors and teams and num_lanes > 0:
             heat1 = generate_heat_draw(teams.copy(), num_lanes)
             heat1_opponents = get_race_opponents(heat1)
@@ -269,7 +290,7 @@ def race_draw():
     else:
         heat1 = session.get('heat1')
         heat2 = session.get('heat2')
-    return render_template_string(HTML_FORM, heat1=heat1, heat2=heat2, errors=errors)
+    return render_template_string(HTML_FORM, heat1=heat1, heat2=heat2, errors=errors, upload_success=upload_success)
 
 @race_draw_bp.route('/race_draw/export_csv', methods=['POST'])
 def export_csv():
@@ -292,8 +313,8 @@ def export_csv():
                     heat_label if race_idx == 1 and lane_idx == 1 else '',
                     f'Race {race_number}' if lane_idx == 1 else '',
                     lane_idx,
-                    team['name'] if team else '',
-                    team['division'] if team else '',
+                    team['Team Name'] if team else '',
+                    team['Division'] if team else '',
                     '',  # Empty "Place" column
                     ''   # Empty "time" column
                 ]
@@ -315,19 +336,19 @@ def export_csv():
 def race_draw_manual():
     # Default teams and divisions for prepopulation
     default_teams = [
-        {'name': 'Alon', 'division': 'Mixed'},
-        {'name': 'Busting with Life', 'division': 'BCS'},
-        {'name': 'City Dragons', 'division': 'Mixed'},
-        {'name': 'Dragon Riders', 'division': 'Mixed'},
-        {'name': 'Hauraki Blues', 'division': 'Womens'},
-        {'name': 'Jaffettes', 'division': 'Womens'},
-        {'name': 'Lion Pride', 'division': 'Mixed'},
-        {'name': 'Lion Tsunami', 'division': 'Mixed'},
-        {'name': 'Random Jaffas', 'division': 'Mixed'},
-        {'name': 'The Pink Dragons', 'division': 'BCS'},
-        {'name': 'Waitematā Warriors', 'division': 'Mixed'},
-        {'name': 'Women of Steel', 'division': 'Womens'},
-        {'name': 'Zombies', 'division': 'Mixed'},
+        {'Team Name': 'Alon', 'Division': 'Mixed'},
+        {'Team Name': 'Busting with Life', 'Division': 'BCS'},
+        {'Team Name': 'City Dragons', 'Division': 'Mixed'},
+        {'Team Name': 'Dragon Riders', 'Division': 'Mixed'},
+        {'Team Name': 'Hauraki Blues', 'Division': 'Womens'},
+        {'Team Name': 'Jaffettes', 'Division': 'Womens'},
+        {'Team Name': 'Lion Pride', 'Division': 'Mixed'},
+        {'Team Name': 'Lion Tsunami', 'Division': 'Mixed'},
+        {'Team Name': 'Random Jaffas', 'Division': 'Mixed'},
+        {'Team Name': 'The Pink Dragons', 'Division': 'BCS'},
+        {'Team Name': 'Waitematā Warriors', 'Division': 'Mixed'},
+        {'Team Name': 'Women of Steel', 'Division': 'Womens'},
+        {'Team Name': 'Zombies', 'Division': 'Mixed'},
        
     ]
     teams = []
@@ -343,10 +364,10 @@ def race_draw_manual():
             errors.append("Number of lanes must be a number.")
             num_lanes = ''
         # Read teams from form
-        team_names = request.form.getlist('team_name')
-        team_divisions = request.form.getlist('team_division')
+        team_names = request.form.getlist('Team_Name')
+        team_divisions = request.form.getlist('Team_Division')
         teams = [
-            {'name': name.strip(), 'division': division.strip()}
+            {'Team Name': name.strip(), 'Division': division.strip()}
             for name, division in zip(team_names, team_divisions)
             if name.strip() and division.strip()
         ]
@@ -379,11 +400,11 @@ def race_draw_manual():
         <tr>
           <td>{{ i + 1 }}</td>
           <td>
-            <input type="text" name="team_name" value="{{ teams[i]['name'] }}" required>
+            <input type="text" name="Team_Name" value="{{ teams[i]['Team Name'] }}" required>
           </td>
           <td>
-            <select name="team_division" required>
-              {% set divval = teams[i]['division'] %}
+            <select name="Team_Division" required>
+              {% set divval = teams[i]['Division'] %}
               <option value="Mixed"  {% if divval == 'Mixed' %}selected{% endif %}>Mixed</option>
               <option value="Womens" {% if divval == 'Womens' %}selected{% endif %}>Womens</option>
               <option value="BCS"    {% if divval == 'BCS' %}selected{% endif %}>BCS</option>
@@ -395,9 +416,9 @@ def race_draw_manual():
         {% for i in range(4 - teams|length) %}
         <tr>
           <td>{{ teams|length + i + 1 }}</td>
-          <td><input type="text" name="team_name"></td>
+          <td><input type="text" name="Team_Name"></td>
           <td>
-            <select name="team_division">
+            <select name="Team_Division">
               <option value="">--Select--</option>
               <option value="Mixed">Mixed</option>
               <option value="Womens">Womens</option>
@@ -410,9 +431,14 @@ def race_draw_manual():
       </table>
       <button type="button" id="add-row-btn" class="file-btn" style="margin-bottom:10px;">+</button>
       <label>Add a new line for a team</label>                         
-      <br>
+      <div style="height:8px;"></div>
+                                  
+      <label>If you want to delete a Team then just leave the line blank</label>
+      <br>                                                                                     
       <input type="number" name="num_lanes" min="1" required placeholder="Enter Number of lanes" style="margin-top:12px; margin-bottom:12px;"><br>
       <input type="submit" value="Generate Race Draw for Mixed Divisional Heats" class="file-btn" style="margin-top:10px;">
+                                  <br>
+      <Label>If you want to re-generate the list, enter in the number of lanes and click 'Generate....' again</label>                            
     </form>
     {% if errors %}
       <div style="color: red;">
@@ -436,8 +462,14 @@ def race_draw_manual():
           {% for team in race %}
           <tr>
             <td>{{loop.index}}</td>
-            <td style="width:220px;">{{team['name'] if team else "EMPTY"}}</td>
-            <td>{{team['division'] if team else ""}}</td>
+            <td style="width:220px;">
+              {% if team and team['Team Name'] %}
+                {{ team['Team Name'] }}
+              {% else %}
+                <span style="color:red;">EMPTY</span>
+              {% endif %}
+            </td>
+            <td>{{team['Division'] if team else ""}}</td>
           </tr>
           {% endfor %}
         </table>
@@ -454,8 +486,14 @@ def race_draw_manual():
           {% for team in race %}
           <tr>
             <td>{{loop.index}}</td>
-            <td style="width:220px;">{{team['name'] if team else "EMPTY"}}</td>
-            <td>{{team['division'] if team else ""}}</td>
+            <td style="width:220px;">
+              {% if team and team['Team Name'] %}
+                {{ team['Team Name'] }}
+              {% else %}
+                <span style="color:red;">EMPTY</span>
+              {% endif %}
+            </td>
+            <td>{{team['Division'] if team else ""}}</td>
           </tr>
           {% endfor %}
         </table>                      
@@ -500,8 +538,8 @@ document.getElementById('add-row-btn').onclick = function() {
     var cell2 = row.insertCell(1);
     var cell3 = row.insertCell(2);
     cell1.innerHTML = number;
-    cell2.innerHTML = '<input type="text" name="team_name">';
-    cell3.innerHTML = `<select name="team_division">
+    cell2.innerHTML = '<input type="text" name="Team_Name">';
+    cell3.innerHTML = `<select name="Team_Division">
         <option value="">--Select--</option>
         <option value="Mixed">Mixed</option>
         <option value="Womens">Womens</option>
@@ -520,7 +558,7 @@ if ('serviceWorker' in navigator) {
 def download_template():
     output = io.StringIO()
     writer = csv.writer(output)
-    writer.writerow(['Name', 'Division'])
+    writer.writerow(['Team Name', 'Division'])
     writer.writerow(['Team 1', 'Mixed'])
     writer.writerow(['Team 2', 'Mixed'])
     writer.writerow(['Team 3', 'Womens'])
@@ -552,7 +590,7 @@ def export_manual_csv():
                     heat_label if race_idx == 1 and lane_idx == 1 else '',
                     f'Race {race_number}' if lane_idx == 1 else '',
                     lane_idx,
-                    team['Name'] if team else '',
+                    team['Team Name'] if team else '',
                     team['Division'] if team else '',
                     '',  # Place (empty)
                     ''   # time (empty)

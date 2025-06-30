@@ -22,7 +22,7 @@ SELECTOR_HTML = '''
   </script>
 </head>
 <body>
-<img src="{{ url_for('static', filename='ADBALogo.png') }}" alt="Logo" style="max-width:300px; display:block; margin-bottom:16px;margin-left:0">
+<img src="{{ url_for('static', filename='ADBALogo.png') }}" alt="Logo" style="max-width:300px; display:block; margin-bottom:16px;margin-left:200">
 <h2>Please choose an action:</h2>
 <div style="width:400px; margin-left:0;">
   <form action="{{ url_for('race_draw.race_draw') }}" method="get" style="margin-bottom:12px;">

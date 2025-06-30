@@ -2,6 +2,7 @@ from flask import Blueprint, render_template_string, request, send_file, url_for
 from io import StringIO, BytesIO
 from collections import defaultdict
 import csv
+import io
 
 finals_draw_bp = Blueprint('finals_draw', __name__)
 
@@ -11,8 +12,16 @@ FINALS_UPLOAD_HTML = '''
 <h2>Create a Finals Draw</h2>
 <label>Upload with or without places and times</label>
 <br>
-<label>You are then able to edit the places and time</label>
 <div style="height:8px;"></div>
+<label>You are then able to edit the places and time</label>
+<br>
+<div style="height:8px;"></div>
+<label>Example format below:</label>
+<div style="height:8px;"></div>
+<img src="{{ url_for('static', filename='heats and times.png') }}" alt="Logo" style="max-width:400px; width:100%; height:auto; margin-bottom:16px; border:2px solid black;">
+<div style="text-align:center; margin-bottom:16px;">
+  
+</div>
 <style>
 .upload-btn, .file-btn {
     background-color: #28a745;
@@ -40,8 +49,19 @@ input[type="file"] {
 </form>
 <div id="file-name" style="margin-top:8px; color:#155724; font-weight:bold;"></div>
 
+{% if upload_success %}
+  <div style="color: green; font-weight: bold; margin-top: 10px;">
+    Upload successful!
+  </div>
+{% endif %}
+
 {% if table %}
   <h3>Edit Places & Times</h3>
+  <Label>Here you can edit the place and time in the table below. </label>
+  <Br>
+  <div style="height:8px;"></div>
+  <label>Just hit save at the bottom of the table when you are done</Label>
+  <div style="height:8px;"></div>
   <form method="post">
     <textarea name="csv_content" hidden>{{ csv_content }}</textarea>
     <table border="1" cellpadding="4">
@@ -53,8 +73,7 @@ input[type="file"] {
         <th>Division</th>
         <th style="width:60px;">Place</th>
         <th style="width:100px;">Time</th>   
-        # Set width for time and placehere #
-      </tr>
+              </tr>
       {% for row in table %}
         {% set i = loop.index0 %}
         <tr>
@@ -74,7 +93,7 @@ input[type="file"] {
     </table>
     <table style="width:100%; border:none;">
       <tr>
-        <td style="text-align: left; border:none;" colspan="{{ header|length if  header|length if header else 1 }}">
+        <td style="text-align: left; border:none;" colspan="{{ header|length if header else 1 }}"">
           <button type="submit" name="edit_times" value="1" class="upload-btn">Save Times</button>
         </td>
       </tr>
@@ -110,28 +129,36 @@ def finals_draw():
     csv_content = ''
     lanes_per_division = {}
     error_message = ''
+    upload_success = False
 
     if request.method == 'POST':
         if 'finals_csv' in request.files and request.files['finals_csv']:
             file = request.files['finals_csv']
             csv_content = file.read().decode('utf-8')
+            if csv_content:
+                upload_success = True
         elif 'csv_content' in request.form:
             csv_content = request.form['csv_content']
             # Update times if editing
             if 'edit_times' in request.form:
                 reader = csv.reader(StringIO(csv_content))
-                rows = list(reader)
-                header = rows[0]
-                time_idx = header.index('time') if 'time' in header else 5
-                for i, row in enumerate(rows[1:]):
-                    new_time = request.form.get(f"time_{i}", "").strip()
-                    row[time_idx] = new_time
-                output = StringIO()
-                writer = csv.writer(output)
-                for row in rows:
-                    writer.writerow(row)
-                csv_content = output.getvalue()
-            # Get lanes per division from form
+                rows = [row for row in reader if any(cell.strip() for cell in row)]
+                if rows:
+                    header = rows[0]
+                    time_idx = header.index('Time') if 'Time' in header else 6
+                    place_idx = header.index('Place') if 'Place' in header else 5
+                    for i, row in enumerate(rows[1:]):
+                        new_place = request.form.get(f"place_{i}", "").strip()
+                        new_time = request.form.get(f"time_{i}", "").strip()
+                        if place_idx < len(row):
+                            row[place_idx] = new_place
+                        if time_idx < len(row):
+                            row[time_idx] = new_time
+                    output = io.StringIO()
+                    writer = csv.writer(output)
+                    for row in rows:
+                        writer.writerow(row)
+                    csv_content = output.getvalue()
             for key in request.form:
                 if key.startswith('lanes_'):
                     division = key.replace('lanes_', '')
@@ -140,7 +167,15 @@ def finals_draw():
                     except Exception:
                         lanes_per_division[division] = None
 
+    # Always re-parse the (possibly updated) csv_content to rebuild tables
     if csv_content:
+        table = []
+        header = []
+        team_times = {}
+        team_divisions = {}
+        current_heat = None
+        division_groups = defaultdict(list)
+        finals_draw = {}
         reader = csv.reader(StringIO(csv_content))
         for i, row in enumerate(reader):
             if i == 0:
@@ -153,7 +188,6 @@ def finals_draw():
                     current_heat = padded_row[0].strip()
                 team = padded_row[3].strip()
                 division = padded_row[4].strip()
-                # Use only the Time column (index 6) for calculations
                 time = padded_row[6].strip()
                 if team:
                     if team not in team_times:
@@ -187,7 +221,6 @@ def finals_draw():
             division_groups[division] = sorted(
                 division_groups[division], key=lambda x: x[4]
             )
-            # Add position column for each division and format total time
             for idx, row in enumerate(division_groups[division], start=1):
                 row.insert(0, idx)
                 row[5] = f"{row[5]:.3f}" if row[5] is not None else ''
@@ -218,25 +251,19 @@ def finals_draw():
     if 'heat2' in session and session['heat2']:
         last_heat_race_number += len(session['heat2'])
 
-    # Recalculate last_edit_race_number from session['edit_table'] or similar
+    # Recalculate last_edit_race_number directly from the current table
     last_edit_race_number = 0
-    if 'edit_table' in session:
-        table = session['edit_table']
-        race_col_index = 1  # Assuming 2nd column is 'Race'
-        for row in table:
-            try:
-                race_num = int(row[race_col_index])
-                if race_num > last_edit_race_number:
-                    last_edit_race_number = race_num
-            except (ValueError, IndexError):
-                continue
-    else:
-        last_edit_race_number = 0  # fallback
+    race_col_index = 1  # Assuming 2nd column is 'Race'
+    for row in table:
+        try:
+            race_num = int(row[race_col_index])
+            if race_num > last_edit_race_number:
+                last_edit_race_number = race_num
+        except (ValueError, IndexError):
+            continue
 
     session['last_edit_race_number'] = last_edit_race_number
 
-    # Render
-    header = header or []
     return render_template_string(
         FINALS_UPLOAD_HTML + '''
     {% if division_groups %}
@@ -339,11 +366,9 @@ def finals_draw():
         finals_draw=finals_draw,
         csv_content=csv_content,
         last_edit_race_number=last_edit_race_number,
-        race_offset=last_edit_race_number  # Use this as the offset for finals
+        race_offset=last_edit_race_number,  # Use this as the offset for finals
+        upload_success=upload_success  # Pass to template
     )
-
-    # After building 'table' from the CSV (right after your for-loop that fills 'table')
-    session['edit_table'] = table
 
 @finals_draw_bp.route('/finals_draw/exportfinal_csv', methods=['POST'])
 def exportfinal_csv():

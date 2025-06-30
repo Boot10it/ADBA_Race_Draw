@@ -57,12 +57,14 @@ input[type="file"] {
 
 {% if table %}
   <h3>Edit Places & Times</h3>
-  <Label>Here you can edit the place and time in the table below. </label>
+  <Label>Here you can edit the place and time in the table below.</label>
   <Br>
   <div style="height:8px;"></div>
-  <label>Just hit save at the bottom of the table when you are done</Label>
+  <label>Just hit save at the bottom of the table when you are done.</Label>
   <div style="height:8px;"></div>
-  <form method="post">
+  <label>To have the finals draw created a time is needed for at least 1 team across both heats.</Label>
+  <div style="height:8px;"></div>
+  <form method="post"> action="#combined-times">
     <textarea name="csv_content" hidden>{{ csv_content }}</textarea>
     <table border="1" cellpadding="4">
       <tr>
@@ -120,6 +122,7 @@ def get_lane_order(num_lanes):
 @finals_draw_bp.route('/finals_draw', methods=['GET', 'POST'])
 def finals_draw():
     table = []
+    header = []
     header = []
     team_times = {}
     team_divisions = {}
@@ -264,9 +267,11 @@ def finals_draw():
 
     session['last_edit_race_number'] = last_edit_race_number
 
+
     return render_template_string(
         FINALS_UPLOAD_HTML + '''
     {% if division_groups %}
+      <a id="combined-times"></a>
       <h3>Combined Times by Division (Heat 1 + Heat 2)</h3>
       <label>The table below shows the combined times for each team in each division, ranked first to last.</label>
       <Br>
@@ -361,7 +366,7 @@ def finals_draw():
 </script>
 ''',
         table=table,
-        header=header,
+        header=header if header is not None else [],
         division_groups=division_groups,
         finals_draw=finals_draw,
         csv_content=csv_content,

@@ -88,6 +88,8 @@ def generate_heat2_draw(teams, num_lanes, heat1_opponents, heat1_lanes, last_two
 def validate_teams_csv(reader):
     errors = []
     teams = []
+    seen_names = set()
+    duplicate_names = set()
     for idx, row in enumerate(reader, start=2):  # start=2 to account for header row
         name = (row.get('Team Name') or '').strip()
         division = (row.get('Division') or '').strip()
@@ -95,9 +97,15 @@ def validate_teams_csv(reader):
             errors.append(f"Row {idx}: Missing Team Name.")
         if not division:
             errors.append(f"Row {idx}: Missing Division for team '{name or '[blank]'}'.")
+        if name:
+            if name in seen_names:
+                duplicate_names.add(name)
+            seen_names.add(name)
         if name and division:
             teams.append({'Team Name': name, 'Division': division})
-    return teams, errors
+    for dup in duplicate_names:
+        errors.append(f"Duplicate team name found: '{dup}'")
+    return teams, errors, duplicate_names
 
 HTML_FORM = '''
 <!doctype html>
@@ -153,14 +161,14 @@ HTML_FORM = '''
       {% for team in race %}
       <tr>
         <td>{{loop.index}}</td>
-        <td style="width:220px;">
+        <td style="width:220px;{% if team['Team Name'] in duplicate_names %} background-color: #ffcccc;{% endif %}">
           {% if team and team['Team Name'] %}
             {{ team['Team Name'] }}
           {% else %}
             <span style="color:red;">EMPTY</span>
           {% endif %}
         </td>
-        <td>{{team['division'] if team else ""}}</td>
+        <td>{{team['Division'] if team else ""}}</td>
       </tr>
       {% endfor %}
     </table>
@@ -185,7 +193,7 @@ HTML_FORM = '''
             <span style="color:red;">EMPTY</span>
           {% endif %}
         </td>
-        <td>{{team['division'] if team else ""}}</td>
+        <td>{{team['Division'] if team else ""}}</td>
       </tr>
       {% endfor %}
     </table>
@@ -268,6 +276,7 @@ if ('serviceWorker' in navigator) {
 def race_draw():
     heat1 = heat2 = None
     errors = []
+    duplicate_names = set()
     upload_success = False
     if request.method == 'POST':
         file = request.files['teams_csv']
@@ -276,7 +285,7 @@ def race_draw():
         if file:
             stream = io.StringIO(file.stream.read().decode("utf-8"))
             reader = csv.DictReader(stream)
-            teams, errors = validate_teams_csv(reader)
+            teams, errors, duplicate_names = validate_teams_csv(reader)
             if not errors and teams and num_lanes > 0:
                 upload_success = True  # Set flag on successful upload
         if not errors and teams and num_lanes > 0:
@@ -290,7 +299,14 @@ def race_draw():
     else:
         heat1 = session.get('heat1')
         heat2 = session.get('heat2')
-    return render_template_string(HTML_FORM, heat1=heat1, heat2=heat2, errors=errors, upload_success=upload_success)
+    return render_template_string(
+        HTML_FORM,
+        errors=errors,
+        upload_success=upload_success,
+        heat1=heat1,
+        heat2=heat2,
+        duplicate_names=duplicate_names,
+    )
 
 @race_draw_bp.route('/race_draw/export_csv', methods=['POST'])
 def export_csv():
@@ -371,6 +387,9 @@ def race_draw_manual():
             for name, division in zip(team_names, team_divisions)
             if name.strip() and division.strip()
         ]
+        # After collecting teams from the form, add this filter:
+        teams = [team for team in teams if team.get('Team Name', '').strip()]
+        
         if not teams:
             errors.append("Please enter at least one team name and division.")
         if not errors and teams and num_lanes:
@@ -400,10 +419,10 @@ def race_draw_manual():
         <tr>
           <td>{{ i + 1 }}</td>
           <td>
-            <input type="text" name="Team_Name" value="{{ teams[i]['Team Name'] }}" required>
+            <input type="text" name="Team_Name" value="{{ teams[i]['Team Name'] }}" >
           </td>
           <td>
-            <select name="Team_Division" required>
+            <select name="Team_Division" >
               {% set divval = teams[i]['Division'] %}
               <option value="Mixed"  {% if divval == 'Mixed' %}selected{% endif %}>Mixed</option>
               <option value="Womens" {% if divval == 'Womens' %}selected{% endif %}>Womens</option>
@@ -462,7 +481,7 @@ def race_draw_manual():
           {% for team in race %}
           <tr>
             <td>{{loop.index}}</td>
-            <td style="width:220px;">
+            <td style="width:220px;{% if team['Team Name'] in duplicate_names %} background-color: #ffcccc;{% endif %}">
               {% if team and team['Team Name'] %}
                 {{ team['Team Name'] }}
               {% else %}

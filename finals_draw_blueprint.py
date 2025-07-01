@@ -64,7 +64,7 @@ input[type="file"] {
   <div style="height:8px;"></div>
   <label>To have the finals draw created a time is needed for at least 1 team across both heats.</Label>
   <div style="height:8px;"></div>
-  <form method="post"> action="#combined-times">
+  <form method="post" action="#combined-times">
     <textarea name="csv_content" hidden>{{ csv_content }}</textarea>
     <table border="1" cellpadding="4">
       <tr>

@@ -123,7 +123,6 @@ def get_lane_order(num_lanes):
 def finals_draw():
     table = []
     header = []
-    header = []
     team_times = {}
     team_divisions = {}
     current_heat = None
@@ -173,7 +172,7 @@ def finals_draw():
     # Always re-parse the (possibly updated) csv_content to rebuild tables
     if csv_content:
         table = []
-        header = []
+        header = header if isinstance(header, list) else []
         team_times = {}
         team_divisions = {}
         current_heat = None
@@ -267,7 +266,8 @@ def finals_draw():
 
     session['last_edit_race_number'] = last_edit_race_number
 
-
+    header = header if isinstance(header, list) else []
+    
     return render_template_string(
         FINALS_UPLOAD_HTML + '''
     {% if division_groups %}
@@ -366,7 +366,7 @@ def finals_draw():
 </script>
 ''',
         table=table,
-        header=header if header is not None else [],
+        header = header,
         division_groups=division_groups,
         finals_draw=finals_draw,
         csv_content=csv_content,

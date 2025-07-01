@@ -88,6 +88,8 @@ def generate_heat2_draw(teams, num_lanes, heat1_opponents, heat1_lanes, last_two
 def validate_teams_csv(reader):
     errors = []
     teams = []
+    seen_names = set()
+    duplicate_names = set()
     for idx, row in enumerate(reader, start=2):  # start=2 to account for header row
         name = (row.get('Team Name') or '').strip()
         division = (row.get('Division') or '').strip()
@@ -95,9 +97,15 @@ def validate_teams_csv(reader):
             errors.append(f"Row {idx}: Missing Team Name.")
         if not division:
             errors.append(f"Row {idx}: Missing Division for team '{name or '[blank]'}'.")
+        if name:
+            if name in seen_names:
+                duplicate_names.add(name)
+            seen_names.add(name)
         if name and division:
             teams.append({'Team Name': name, 'Division': division})
-    return teams, errors
+    for dup in duplicate_names:
+        errors.append(f"Duplicate team name found: '{dup}'")
+    return teams, errors, duplicate_names
 
 HTML_FORM = '''
 <!doctype html>
@@ -153,14 +161,14 @@ HTML_FORM = '''
       {% for team in race %}
       <tr>
         <td>{{loop.index}}</td>
-        <td style="width:220px;">
+        <td style="width:220px;{% if team['Team Name'] in duplicate_names %} background-color: #ffcccc;{% endif %}">
           {% if team and team['Team Name'] %}
             {{ team['Team Name'] }}
           {% else %}
             <span style="color:red;">EMPTY</span>
           {% endif %}
         </td>
-        <td>{{team['division'] if team else ""}}</td>
+        <td>{{team['Division'] if team else ""}}</td>
       </tr>
       {% endfor %}
     </table>
@@ -185,7 +193,7 @@ HTML_FORM = '''
             <span style="color:red;">EMPTY</span>
           {% endif %}
         </td>
-        <td>{{team['division'] if team else ""}}</td>
+        <td>{{team['Division'] if team else ""}}</td>
       </tr>
       {% endfor %}
     </table>
@@ -268,6 +276,7 @@ if ('serviceWorker' in navigator) {
 def race_draw():
     heat1 = heat2 = None
     errors = []
+    duplicate_names = set()
     upload_success = False
     if request.method == 'POST':
         file = request.files['teams_csv']
@@ -276,7 +285,7 @@ def race_draw():
         if file:
             stream = io.StringIO(file.stream.read().decode("utf-8"))
             reader = csv.DictReader(stream)
-            teams, errors = validate_teams_csv(reader)
+            teams, errors, duplicate_names = validate_teams_csv(reader)
             if not errors and teams and num_lanes > 0:
                 upload_success = True  # Set flag on successful upload
         if not errors and teams and num_lanes > 0:
@@ -290,7 +299,14 @@ def race_draw():
     else:
         heat1 = session.get('heat1')
         heat2 = session.get('heat2')
-    return render_template_string(HTML_FORM, heat1=heat1, heat2=heat2, errors=errors, upload_success=upload_success)
+    return render_template_string(
+        HTML_FORM,
+        errors=errors,
+        upload_success=upload_success,
+        heat1=heat1,
+        heat2=heat2,
+        duplicate_names=duplicate_names,
+    )
 
 @race_draw_bp.route('/race_draw/export_csv', methods=['POST'])
 def export_csv():
@@ -334,7 +350,6 @@ def export_csv():
 
 @race_draw_bp.route('/race_draw_manual', methods=['GET', 'POST'])
 def race_draw_manual():
-    # Default teams and divisions for prepopulation
     default_teams = [
         {'Team Name': 'Alon', 'Division': 'Mixed'},
         {'Team Name': 'Busting with Life', 'Division': 'BCS'},
@@ -355,22 +370,37 @@ def race_draw_manual():
     heat1 = heat2 = None
     errors = []
     num_lanes = ''
+    duplicate_names = set()
     # On GET, prepopulate; on POST, use submitted values
     if request.method == 'POST':
-        num_lanes = request.form.get('num_lanes', '')
-        try:
-            num_lanes = int(num_lanes)
-        except Exception:
-            errors.append("Number of lanes must be a number.")
-            num_lanes = ''
         # Read teams from form
         team_names = request.form.getlist('Team_Name')
         team_divisions = request.form.getlist('Team_Division')
         teams = [
             {'Team Name': name.strip(), 'Division': division.strip()}
             for name, division in zip(team_names, team_divisions)
-            if name.strip() and division.strip()
+            if name.strip()
         ]
+        # Check for missing division if team name is present
+        for name, division in zip(team_names, team_divisions):
+            if name.strip() and not division.strip():
+                errors.append(f"Please select division for team '{name.strip()}'.")
+
+        # Duplicate check
+        seen = set()
+        duplicate_names = set()
+        for team in teams:
+            name = team['Team Name']
+            if name in seen:
+                duplicate_names.add(name)
+            seen.add(name)
+        # Validate num_lanes
+        num_lanes = request.form.get('num_lanes', '')
+        try:
+            num_lanes = int(num_lanes)
+        except Exception:
+            errors.append("Number of lanes must be a number.")
+            num_lanes = ''
         if not teams:
             errors.append("Please enter at least one team name and division.")
         if not errors and teams and num_lanes:
@@ -380,153 +410,160 @@ def race_draw_manual():
             last_two_teams = get_last_two_race_teams(heat1)
             heat2 = generate_heat2_draw(teams, num_lanes, heat1_opponents, heat1_lanes, last_two_teams)
             session['manual_heat1'] = heat1
-            session['manual_heat2'] = heat2            
+            session['manual_heat2'] = heat2
     else:
         teams = default_teams
         num_lanes = ''
-    return render_template_string("""
-    <!doctype html>
-    <title>Create a Race Draw (Manual Entry)</title>
-    <h2>Create a Race Draw (Manual Entry)</h2>
-    <form method="post">
-      <label>Enter Team Names and select Divisions:</label>
-      <table border="1" cellpadding="4" style="margin-bottom:10px;">
-        <tr>
-          <th>#</th>
-          <th>Team Name</th>
-          <th>Division</th>
-        </tr>
-        {% for i in range(teams|length) %}
-        <tr>
-          <td>{{ i + 1 }}</td>
-          <td>
-            <input type="text" name="Team_Name" value="{{ teams[i]['Team Name'] }}" required>
-          </td>
-          <td>
-            <select name="Team_Division" required>
-              {% set divval = teams[i]['Division'] %}
-              <option value="Mixed"  {% if divval == 'Mixed' %}selected{% endif %}>Mixed</option>
-              <option value="Womens" {% if divval == 'Womens' %}selected{% endif %}>Womens</option>
-              <option value="BCS"    {% if divval == 'BCS' %}selected{% endif %}>BCS</option>
-              <option value="Open"   {% if divval == 'Open' %}selected{% endif %}>Open</option>
-            </select>
-          </td>
-        </tr>
-        {% endfor %}
-        {% for i in range(4 - teams|length) %}
-        <tr>
-          <td>{{ teams|length + i + 1 }}</td>
-          <td><input type="text" name="Team_Name"></td>
-          <td>
-            <select name="Team_Division">
-              <option value="">--Select--</option>
-              <option value="Mixed">Mixed</option>
-              <option value="Womens">Womens</option>
-              <option value="BCS">BCS</option>
-              <option value="Open">Open</option>
-            </select>
-          </td>
-        </tr>
-        {% endfor %}
-      </table>
-      <button type="button" id="add-row-btn" class="file-btn" style="margin-bottom:10px;">+</button>
-      <label>Add a new line for a team</label>                         
-      <div style="height:8px;"></div>
+
+    return render_template_string(
+        """
+        <!doctype html>
+        <title>Create a Race Draw (Manual Entry)</title>
+        <h2>Create a Race Draw (Manual Entry)</h2>
+        <form method="post">
+          <label>Enter Team Names and select Divisions:</label>
+          <table border="1" cellpadding="4" style="margin-bottom:10px;">
+            <tr>
+              <th>#</th>
+              <th>Team Name</th>
+              <th>Division</th>
+            </tr>
+            {% for i in range(teams|length) %}
+            <tr>
+              <td>{{ i + 1 }}</td>
+              <td>
+                <input type="text" name="Team_Name" value="{{ teams[i]['Team Name'] }}" >
+              </td>
+              <td>
+                <select name="Team_Division" >
+                  {% set divval = teams[i]['Division'] %}
+                  <option value="Mixed"  {% if divval == 'Mixed' %}selected{% endif %}>Mixed</option>
+                  <option value="Womens" {% if divval == 'Womens' %}selected{% endif %}>Womens</option>
+                  <option value="BCS"    {% if divval == 'BCS' %}selected{% endif %}>BCS</option>
+                  <option value="Open"   {% if divval == 'Open' %}selected{% endif %}>Open</option>
+                </select>
+              </td>
+            </tr>
+            {% endfor %}
+            {% for i in range(4 - teams|length) %}
+            <tr>
+              <td>{{ teams|length + i + 1 }}</td>
+              <td><input type="text" name="Team_Name"></td>
+              <td>
+                <select name="Team_Division">
+                  <option value="">--Select--</option>
+                  <option value="Mixed">Mixed</option>
+                  <option value="Womens">Womens</option>
+                  <option value="BCS">BCS</option>
+                  <option value="Open">Open</option>
+                </select>
+              </td>
+            </tr>
+            {% endfor %}
+          </table>
+          <button type="button" id="add-row-btn" class="file-btn" style="margin-bottom:10px;">+</button>
+          <label>Add a new line for a team</label>                         
+          <div style="height:8px;"></div>
                                   
-      <label>If you want to delete a Team then just leave the line blank</label>
-      <br>                                                                                     
-      <input type="number" name="num_lanes" min="1" required placeholder="Enter Number of lanes" style="margin-top:12px; margin-bottom:12px;"><br>
-      <input type="submit" value="Generate Race Draw for Mixed Divisional Heats" class="file-btn" style="margin-top:10px;">
+          <label>If you want to delete a Team then just leave the line blank</label>
+          <br>                                                                                     
+          <input type="number" name="num_lanes" min="1" required placeholder="Enter Number of lanes" style="margin-top:12px; margin-bottom:12px;"><br>
+          <input type="submit" value="Generate Race Draw for Mixed Divisional Heats" class="file-btn" style="margin-top:10px;">
+          <div style="height:8px;"></div>
                                   <br>
-      <Label>If you want to re-generate the list, enter in the number of lanes and click 'Generate....' again</label>                            
-    </form>
-    {% if errors %}
-      <div style="color: red;">
-        <ul>
-        {% for error in errors %}
-          <li>{{ error }}</li>
-        {% endfor %}
-        </ul>
-      </div>
-    {% endif %}
-    {% if heat1 %}
-      <h3>--- Heat 1 Draw ---</h3>
-      {% for race in heat1 %}
-        <b>Race {{loop.index}}:</b>
-        <table border="1" cellpadding="4" style="margin-bottom:10px;">
-          <tr>
-            <th>Lane</th>
-            <th style="width:220px;">Team Name</th>
-            <th>Division</th>
-          </tr>
-          {% for team in race %}
-          <tr>
-            <td>{{loop.index}}</td>
-            <td style="width:220px;">
-              {% if team and team['Team Name'] %}
-                {{ team['Team Name'] }}
-              {% else %}
-                <span style="color:red;">EMPTY</span>
-              {% endif %}
-            </td>
-            <td>{{team['Division'] if team else ""}}</td>
-          </tr>
+          <Label>If you want to re-generate the list, enter in the number of lanes and click 'Generate....' again</label>
+          <div style="height:8px;"></div>
+          <label>If you see an 'EMPTY' in a team name for the draw, there is no error is is just an inform</label>
+          <div style="height:8px;"></div>
+          <label>If a team is highlighted in red, it means that team name is duplicated in the list</label>                            
+        </form>
+        {% if errors %}
+          <div style="color: red;">
+            <ul>
+            {% for error in errors %}
+              <li>{{ error }}</li>
+            {% endfor %}
+            </ul>
+          </div>
+        {% endif %}
+        {% if heat1 %}
+          <h3>--- Heat 1 Draw ---</h3>
+          {% for race in heat1 %}
+            <b>Race {{loop.index}}:</b>
+            <table border="1" cellpadding="4" style="margin-bottom:10px;">
+              <tr>
+                <th>Lane</th>
+                <th style="width:220px;">Team Name</th>
+                <th>Division</th>
+              </tr>
+              {% for team in race %}
+              <tr>
+                <td>{{loop.index}}</td>
+                <td style="width:220px;{% if team['Team Name'] in duplicate_names %} background-color: #ffcccc;{% endif %}">
+                  {% if team and team['Team Name'] %}
+                    {{ team['Team Name'] }}
+                  {% else %}
+                    <span style="color:red;">EMPTY</span>
+                  {% endif %}
+                </td>
+                <td>{{team['Division'] if team else ""}}</td>
+              </tr>
+              {% endfor %}
+            </table>
           {% endfor %}
-        </table>
-      {% endfor %}
-      <h3>--- Heat 2 Draw ---</h3>
-      {% for race in heat2 %}
-        <b>Race {{heat1|length + loop.index}}:</b>
-        <table border="1" cellpadding="4" style="margin-bottom:10px;">
-          <tr>
-            <th>Lane</th>
-            <th style="width:220px;">Team Name</th>
-            <th>Division</th>
-          </tr>
-          {% for team in race %}
-          <tr>
-            <td>{{loop.index}}</td>
-            <td style="width:220px;">
-              {% if team and team['Team Name'] %}
-                {{ team['Team Name'] }}
-              {% else %}
-                <span style="color:red;">EMPTY</span>
-              {% endif %}
-            </td>
-            <td>{{team['Division'] if team else ""}}</td>
-          </tr>
+          <h3>--- Heat 2 Draw ---</h3>
+          {% for race in heat2 %}
+            <b>Race {{heat1|length + loop.index}}:</b>
+            <table border="1" cellpadding="4" style="margin-bottom:10px;">
+              <tr>
+                <th>Lane</th>
+                <th style="width:220px;">Team Name</th>
+                <th>Division</th>
+              </tr>
+              {% for team in race %}
+              <tr>
+                <td>{{loop.index}}</td>
+                <td style="width:220px;">
+                  {% if team and team['Team Name'] %}
+                    {{ team['Team Name'] }}
+                  {% else %}
+                    <span style="color:red;">EMPTY</span>
+                  {% endif %}
+                </td>
+                <td>{{team['Division'] if team else ""}}</td>
+              </tr>
+              {% endfor %}
+            </table>                      
           {% endfor %}
-        </table>                      
-      {% endfor %}
-    {% endif %}
-    {% if heat1 and heat2 %}
-        <label>Ensure you check the last two races of the 'Heat 1' and the first two races of 'Heat 2' so the teams are not the same</label>                             
-        <form action="{{ url_for('race_draw.export_manual_csv') }}" method="post" style="margin-top:20px;">
-          <button type="submit" class="file-btn">Export as CSV</button>
-       </form>
-     {% endif %}                                  
-    <form action="{{ url_for('selector') }}" method="get" style="margin-top:20px;">
-      <button type="submit" style="background-color:#6c757d; color:white; padding:8px 16px; border:none; border-radius:4px;">
-        Back to Selector Page
-      </button>
-    </form>
-    <style>
-    .file-btn {
-        background-color: #007bff;
-        color: white;
-        border: none;
-        padding: 8px 16px;
-        border-radius: 4px;
-        box-shadow: 2px 2px 8px rgba(0,123,255,0.3);
-        cursor: pointer;
-        font-size: 1em;
-    }
-    .file-btn:hover {
-        outline: 2px solid #0056b3;
-        box-shadow: 2px 2px 12px rgba(0,123,255,0.5);
-    }
-    </style>
-    <script>
+        {% endif %}
+        {% if heat1 and heat2 %}
+            <label>Ensure you check the last two races of the 'Heat 1' and the first two races of 'Heat 2' so the teams are not the same</label>                             
+            <form action="{{ url_for('race_draw.export_manual_csv') }}" method="post" style="margin-top:20px;">
+              <button type="submit" class="file-btn">Export as CSV</button>
+           </form>
+         {% endif %}                                  
+        <form action="{{ url_for('selector') }}" method="get" style="margin-top:20px;">
+          <button type="submit" style="background-color:#6c757d; color:white; padding:8px 16px; border:none; border-radius:4px;">
+            Back to Selector Page
+          </button>
+        </form>
+        <style>
+        .file-btn {
+            background-color: #007bff;
+            color: white;
+            border: none;
+            padding: 8px 16px;
+            border-radius: 4px;
+            box-shadow: 2px 2px 8px rgba(0,123,255,0.3);
+            cursor: pointer;
+            font-size: 1em;
+        }
+        .file-btn:hover {
+            outline: 2px solid #0056b3;
+            box-shadow: 2px 2px 12px rgba(0,123,255,0.5);
+        }
+        </style>
+        <script>
 document.getElementById('add-row-btn').onclick = function() {
     // Find the table above the button
     var table = this.previousElementSibling;
@@ -552,7 +589,9 @@ if ('serviceWorker' in navigator) {
   navigator.serviceWorker.register('{{ url_for('static', filename='service-worker.js') }}');
 }
 </script>
-    """, heat1=heat1, heat2=heat2, errors=errors, teams=teams, num_lanes=num_lanes)
+    """,
+        heat1=heat1, heat2=heat2, errors=errors, teams=teams, num_lanes=num_lanes, duplicate_names=duplicate_names
+    )
 
 @race_draw_bp.route('/race_draw/download_template')
 def download_template():

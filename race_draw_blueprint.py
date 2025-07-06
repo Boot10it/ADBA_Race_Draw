@@ -243,100 +243,137 @@ HTML_FORM = '''
     /* Responsive design */
     @media (max-width: 768px) {
       body {
-        padding: 10px;
+        padding: 25px;
+        font-size: 24px;
       }
       .container {
-        padding: 15px;
+        padding: 30px;
       }
       .form-section {
-        padding: 15px;
+        padding: 25px;
       }
       .example-image {
         max-width: 100%;
-        margin: 16px auto;
+        margin: 20px auto;
       }
       .race-table {
-        font-size: 14px;
+        font-size: 20px;
         overflow-x: auto;
         display: block;
         white-space: nowrap;
       }
       .race-table th, .race-table td {
-        padding: 6px;
-        min-width: 80px;
+        padding: 12px;
+        min-width: 120px;
       }
       input[type="number"], input[type="file"] {
         max-width: 100%;
+        padding: 20px;
+        font-size: 24px;
+        min-height: 70px;
       }
       .btn, .file-btn {
         width: 100%;
-        margin-bottom: 10px;
-        padding: 16px 20px;
-        font-size: 18px;
-        min-height: 60px;
+        margin-bottom: 20px;
+        padding: 35px 30px;
+        font-size: 28px;
+        min-height: 100px;
+        font-weight: 700;
         touch-action: manipulation;
+      }
+      h2 {
+        font-size: 2.2rem;
+        text-align: center;
+      }
+      h3 {
+        font-size: 1.8rem;
+        text-align: center;
       }
     }
     
     @media (max-width: 480px) {
       body {
-        padding: 5px;
+        padding: 20px;
+        font-size: 26px;
       }
       .container {
-        padding: 10px;
+        padding: 25px;
       }
       .form-section {
-        padding: 10px;
+        padding: 20px;
       }
       h2 {
-        font-size: 1.3rem;
+        font-size: 2.0rem;
         text-align: center;
       }
       h3 {
-        font-size: 1.1rem;
+        font-size: 1.6rem;
         text-align: center;
       }
       .race-table {
-        font-size: 12px;
+        font-size: 18px;
       }
       .race-table th, .race-table td {
-        padding: 4px;
-        min-width: 60px;
+        padding: 10px;
+        min-width: 100px;
       }
       .btn, .file-btn {
-        padding: 18px 16px;
-        font-size: 17px;
-        min-height: 65px;
-        font-weight: 600;
+        padding: 40px 25px;
+        font-size: 30px;
+        min-height: 110px;
+        font-weight: 700;
+        border-radius: 12px;
+        margin-bottom: 25px;
       }
       .inline-input-container {
         flex-direction: column;
         align-items: stretch;
       }
       .inline-input-container label {
-        margin-bottom: 5px;
+        margin-bottom: 10px;
         text-align: center;
+        font-size: 24px;
+      }
+      input[type="number"], input[type="file"] {
+        padding: 18px;
+        font-size: 26px;
+        min-height: 70px;
       }
     }
     
     /* High DPI devices like Samsung S24 */
     @media (max-width: 480px) and (-webkit-min-device-pixel-ratio: 2) {
+      body {
+        font-size: 28px;
+      }
       .btn, .file-btn {
-        padding: 20px 18px;
-        font-size: 19px;
-        min-height: 70px;
+        padding: 45px 30px;
+        font-size: 34px;
+        min-height: 120px;
         font-weight: 700;
+        border-radius: 15px;
+        margin-bottom: 30px;
       }
       h2 {
-        font-size: 1.5rem;
+        font-size: 2.4rem;
       }
       h3 {
-        font-size: 1.3rem;
+        font-size: 1.8rem;
       }
       input[type="number"], input[type="file"] {
+        padding: 22px;
+        font-size: 28px;
+        min-height: 80px;
+      }
+      .inline-input-container label {
+        font-size: 26px;
+      }
+      .race-table {
+        font-size: 20px;
+      }
+      .race-table th, .race-table td {
         padding: 12px;
-        font-size: 17px;
-        min-height: 50px;
+        min-width: 110px;
       }
     }
   </style>

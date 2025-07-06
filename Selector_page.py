@@ -89,79 +89,80 @@ SELECTOR_HTML = '''
     /* Responsive design */
     @media (max-width: 768px) {
       body {
-        padding: 15px;
-        font-size: 18px;
+        padding: 25px;
+        font-size: 24px;
       }
       .container {
-        padding: 20px;
+        padding: 30px;
         margin: 0;
         border-radius: 0;
       }
       .logo {
-        max-width: 250px;
-        margin-bottom: 20px;
+        max-width: 350px;
+        margin-bottom: 30px;
       }
       h2 {
-        font-size: 1.6rem;
+        font-size: 2.2rem;
         text-align: center;
-        margin-bottom: 25px;
+        margin-bottom: 35px;
       }
       h3 {
-        font-size: 1.3rem;
+        font-size: 1.8rem;
       }
       .btn {
-        padding: 22px 24px;
-        font-size: 20px;
+        padding: 35px 30px;
+        font-size: 28px;
         text-align: center;
-        min-height: 70px;
-        font-weight: 600;
+        min-height: 100px;
+        font-weight: 700;
+        margin-bottom: 20px;
       }
       .rules-section {
-        margin-top: 25px;
-        padding: 20px;
+        margin-top: 35px;
+        padding: 30px;
       }
       .rule-item {
-        font-size: 17px;
-        margin-bottom: 15px;
+        font-size: 22px;
+        margin-bottom: 20px;
         line-height: 1.6;
       }
     }
     
     @media (max-width: 480px) {
       body {
-        padding: 10px;
-        font-size: 19px;
+        padding: 20px;
+        font-size: 26px;
       }
       .container {
-        padding: 15px;
+        padding: 25px;
         margin: 0;
       }
       .logo {
-        max-width: 200px;
-        margin-bottom: 20px;
+        max-width: 300px;
+        margin-bottom: 25px;
       }
       h2 {
-        font-size: 1.5rem;
-        margin-bottom: 20px;
+        font-size: 2.0rem;
+        margin-bottom: 30px;
       }
       .btn {
-        padding: 24px 20px;
-        font-size: 21px;
-        border-radius: 8px;
-        min-height: 75px;
+        padding: 40px 25px;
+        font-size: 30px;
+        border-radius: 12px;
+        min-height: 110px;
         display: flex;
         align-items: center;
         justify-content: center;
         font-weight: 700;
-        margin-bottom: 15px;
+        margin-bottom: 25px;
       }
       .rules-section {
-        margin-top: 20px;
-        padding: 18px;
+        margin-top: 30px;
+        padding: 25px;
       }
       .rule-item {
-        font-size: 18px;
-        margin-bottom: 12px;
+        font-size: 24px;
+        margin-bottom: 18px;
         line-height: 1.7;
       }
     }
@@ -169,27 +170,29 @@ SELECTOR_HTML = '''
     /* High DPI devices like Samsung S24 */
     @media (max-width: 480px) and (-webkit-min-device-pixel-ratio: 2) {
       body {
-        font-size: 20px;
+        font-size: 28px;
       }
       .btn {
-        padding: 26px 22px;
-        font-size: 23px;
-        min-height: 80px;
+        padding: 45px 30px;
+        font-size: 34px;
+        min-height: 120px;
         font-weight: 700;
-        margin-bottom: 18px;
+        margin-bottom: 30px;
+        border-radius: 15px;
       }
       h2 {
-        font-size: 1.7rem;
+        font-size: 2.4rem;
       }
       .rule-item {
-        font-size: 19px;
+        font-size: 26px;
         line-height: 1.8;
+        margin-bottom: 22px;
       }
       .logo {
-        max-width: 220px;
+        max-width: 320px;
       }
       .rules-section {
-        padding: 20px;
+        padding: 30px;
       }
     }
   </style>

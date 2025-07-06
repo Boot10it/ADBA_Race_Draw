@@ -201,20 +201,21 @@ FINALS_UPLOAD_HTML = '''
     /* Responsive design */
     @media (max-width: 768px) {
       body {
-        padding: 10px;
+        padding: 25px;
+        font-size: 24px;
       }
       .container {
-        padding: 15px;
+        padding: 30px;
       }
       .form-section {
-        padding: 15px;
+        padding: 25px;
       }
       .file-upload-area {
         flex-direction: column;
         align-items: stretch;
       }
       .data-table, .summary-table, .finals-table {
-        font-size: 14px;
+        font-size: 20px;
         overflow-x: auto;
         display: block;
         white-space: nowrap;
@@ -222,99 +223,143 @@ FINALS_UPLOAD_HTML = '''
       .data-table th, .data-table td,
       .summary-table th, .summary-table td,
       .finals-table th, .finals-table td {
-        padding: 6px;
-        min-width: 80px;
+        padding: 12px;
+        min-width: 120px;
       }
       .lanes-input-group {
         flex-direction: column;
       }
       .lanes-input-item {
         min-width: 100%;
+        margin-bottom: 20px;
+      }
+      .lanes-input-item label {
+        font-size: 22px;
+        margin-bottom: 10px;
+      }
+      .lanes-input-item input {
+        padding: 20px;
+        font-size: 24px;
+        min-height: 70px;
       }
       .btn, .file-btn {
         width: 100%;
-        margin-bottom: 10px;
-        padding: 16px 20px;
-        font-size: 18px;
-        min-height: 60px;
+        margin-bottom: 20px;
+        padding: 35px 30px;
+        font-size: 28px;
+        min-height: 100px;
+        font-weight: 700;
         touch-action: manipulation;
+      }
+      h2 {
+        font-size: 2.2rem;
+        text-align: center;
+      }
+      h3, h4 {
+        font-size: 1.8rem;
+        text-align: center;
       }
     }
     
     @media (max-width: 480px) {
       body {
-        padding: 5px;
+        padding: 20px;
+        font-size: 26px;
       }
       .container {
-        padding: 10px;
+        padding: 25px;
       }
       .form-section {
-        padding: 10px;
+        padding: 20px;
       }
       h2 {
-        font-size: 1.3rem;
+        font-size: 2.0rem;
         text-align: center;
       }
       h3, h4 {
-        font-size: 1.1rem;
+        font-size: 1.6rem;
         text-align: center;
       }
       .data-table, .summary-table, .finals-table {
-        font-size: 12px;
+        font-size: 18px;
       }
       .data-table th, .data-table td,
       .summary-table th, .summary-table td,
       .finals-table th, .finals-table td {
-        padding: 4px;
-        min-width: 60px;
+        padding: 10px;
+        min-width: 100px;
       }
       .btn, .file-btn {
-        padding: 18px 16px;
-        font-size: 17px;
-        min-height: 65px;
-        font-weight: 600;
+        padding: 40px 25px;
+        font-size: 30px;
+        min-height: 110px;
+        font-weight: 700;
+        border-radius: 12px;
+        margin-bottom: 25px;
       }
       .inline-input-container {
         flex-direction: column;
         align-items: stretch;
       }
       .inline-input-container label {
-        margin-bottom: 5px;
+        margin-bottom: 10px;
         text-align: center;
+        font-size: 24px;
       }
       .data-table input[type="text"] {
-        padding: 8px;
-        font-size: 16px;
-        min-height: 40px;
+        padding: 16px;
+        font-size: 22px;
+        min-height: 60px;
+      }
+      .lanes-input-item label {
+        font-size: 24px;
+      }
+      .lanes-input-item input {
+        padding: 18px;
+        font-size: 26px;
+        min-height: 70px;
       }
     }
     
     /* High DPI devices like Samsung S24 */
     @media (max-width: 480px) and (-webkit-min-device-pixel-ratio: 2) {
+      body {
+        font-size: 28px;
+      }
       .btn, .file-btn {
-        padding: 20px 18px;
-        font-size: 19px;
-        min-height: 70px;
+        padding: 45px 30px;
+        font-size: 34px;
+        min-height: 120px;
         font-weight: 700;
+        border-radius: 15px;
+        margin-bottom: 30px;
       }
       h2 {
-        font-size: 1.5rem;
+        font-size: 2.4rem;
       }
       h3, h4 {
-        font-size: 1.3rem;
+        font-size: 1.8rem;
       }
       .data-table th, .data-table td,
       .summary-table th, .summary-table td,
       .finals-table th, .finals-table td {
-        padding: 6px;
-        font-size: 16px;
-        min-width: 70px;
+        padding: 12px;
+        font-size: 20px;
+        min-width: 110px;
       }
       .data-table input[type="text"] {
-        padding: 10px;
-        font-size: 17px;
-        min-height: 45px;
+        padding: 20px;
+        font-size: 24px;
+        min-height: 70px;
         border-width: 2px;
+      }
+      .lanes-input-item label {
+        font-size: 26px;
+      }
+      .lanes-input-item input {
+        padding: 22px;
+        font-size: 28px;
+        min-height: 80px;
       }
     }
   </style>
@@ -426,23 +471,38 @@ FINALS_UPLOAD_HTML = '''
     }
     
     /* Mobile optimizations */
+    @media (max-width: 768px) {
+      .upload-btn, .file-btn {
+        padding: 35px 30px;
+        font-size: 28px;
+        width: 100%;
+        margin-bottom: 20px;
+        min-height: 100px;
+        font-weight: 700;
+      }
+    }
+    
     @media (max-width: 480px) {
       .upload-btn, .file-btn {
-        padding: 16px 20px;
-        font-size: 18px;
+        padding: 40px 25px;
+        font-size: 30px;
         width: 100%;
-        margin-bottom: 10px;
-        min-height: 60px;
+        margin-bottom: 25px;
+        min-height: 110px;
+        font-weight: 700;
+        border-radius: 12px;
       }
     }
     
     /* High DPI devices like Samsung S24 */
     @media (max-width: 480px) and (-webkit-min-device-pixel-ratio: 2) {
       .upload-btn, .file-btn {
-        padding: 18px 22px;
-        font-size: 19px;
-        min-height: 65px;
+        padding: 45px 30px;
+        font-size: 34px;
+        min-height: 120px;
         font-weight: 700;
+        border-radius: 15px;
+        margin-bottom: 30px;
       }
     }
   </style>

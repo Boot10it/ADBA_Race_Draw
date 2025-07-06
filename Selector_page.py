@@ -16,6 +16,7 @@ SELECTOR_HTML = '''
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <link rel="manifest" href="{{ url_for('static', filename='manifest.json') }}">
   <meta name="theme-color" content="#007bff">
+  <link rel="stylesheet" href="{{ url_for('static', filename='Shared.css') }}">
   <style>
     body {
       font-family: Arial, sans-serif;
@@ -41,20 +42,20 @@ SELECTOR_HTML = '''
     .button-container {
       display: flex;
       flex-direction: column;
-      gap: 12px;
+      gap: 4px;
       margin-bottom: 30px;
     }
     .btn {
       width: 100%;
-      padding: 15px 20px;
+      padding: 12px 18px;      /* 8px 12px * 1.5 */
       border: none;
       border-radius: 6px;
-      font-size: 16px;
+      font-size: 21px;         /* 14px * 1.5 */
       cursor: pointer;
       transition: all 0.3s ease;
       text-align: left;
       font-weight: 500;
-      min-height: 50px;
+      min-height: 54px;        /* 36px * 1.5 */
       touch-action: manipulation;
     }
     .btn:hover {
@@ -89,86 +90,112 @@ SELECTOR_HTML = '''
     /* Responsive design */
     @media (max-width: 768px) {
       body {
-        padding: 10px;
+        padding: 25px;
+        font-size: 24px;
       }
       .container {
-        padding: 15px;
+        padding: 30px;
         margin: 0;
         border-radius: 0;
       }
       .logo {
-        max-width: 200px;
-        margin-bottom: 15px;
+        max-width: 350px;
+        margin-bottom: 30px;
       }
       h2 {
-        font-size: 1.3rem;
+        font-size: 2.2rem;
         text-align: center;
-        margin-bottom: 20px;
+        margin-bottom: 35px;
       }
       h3 {
-        font-size: 1.1rem;
+        font-size: 1.8rem;
       }
       .btn {
-        padding: 18px 20px;
-        font-size: 18px;
-        text-align: center;
-        min-height: 60px;
+        padding: 24px 27px;    /* 16px 18px * 1.5 */
+        font-size: 27px;       /* 18px * 1.5 */
+        min-height: 72px;      /* 48px * 1.5 */
+        font-weight: 600;
+        margin-bottom: 18px;   /* 12px * 1.5 */
       }
       .rules-section {
-        margin-top: 20px;
-        padding: 15px;
+        margin-top: 35px;
+        padding: 30px;
+      }
+      .rule-item {
+        font-size: 22px;
+        margin-bottom: 20px;
+        line-height: 1.6;
       }
     }
     
     @media (max-width: 480px) {
       body {
-        padding: 5px;
+        padding: 20px;
+        font-size: 26px;
       }
       .container {
-        padding: 10px;
+        padding: 25px;
         margin: 0;
       }
       .logo {
-        max-width: 150px;
-        margin-bottom: 10px;
+        max-width: 300px;
+        margin-bottom: 25px;
       }
       h2 {
-        font-size: 1.2rem;
+        font-size: 1.0rem;
+        margin-bottom: 20px;
+      }
+      h3 {
+        font-size: 0.8rem;
         margin-bottom: 15px;
       }
       .btn {
-        padding: 20px 16px;
-        font-size: 19px;
-        border-radius: 8px;
-        min-height: 70px;
-        display: flex;
-        align-items: center;
-        justify-content: center;
+        padding: 8px 6px;      /* 50% smaller than 16px 13px */
+        font-size: 7.5px;      /* 50% smaller than 15px */
+        min-height: 20px;      /* 50% smaller than 40px */
+        border-radius: 6px;    /* 50% smaller than 12px */
+        margin-bottom: 5px;    /* 50% smaller than 9px */
+        line-height: 1.3;
+        width: 100%;
+        white-space: normal;
+        word-break: break-word;
       }
       .rules-section {
-        margin-top: 15px;
-        padding: 12px;
+        margin-top: 30px;
+        padding: 25px;
       }
       .rule-item {
-        font-size: 15px;
-        margin-bottom: 10px;
-        line-height: 1.6;
+        font-size: 24px;
+        margin-bottom: 18px;
+        line-height: 1.7;
       }
     }
     
     /* High DPI devices like Samsung S24 */
     @media (max-width: 480px) and (-webkit-min-device-pixel-ratio: 2) {
+      body {
+        font-size: 28px;
+      }
       .btn {
-        padding: 22px 18px;
-        font-size: 20px;
-        min-height: 75px;
-        font-weight: 600;
+        padding: 30px 24px;    /* 20px 16px * 1.5 */
+        font-size: 20px;       /* 18px * 1.5 */
+        min-height: 72px;      /* 48px * 1.5 */
+        border-radius: 15px;
+        margin-bottom: 18px;   /* 12px * 1.5 */
       }
       h2 {
-        font-size: 1.4rem;
+        font-size: 1.5rem;
       }
       .rule-item {
-        font-size: 16px;
+        font-size: 18px;
+        line-height: 1.8;
+        margin-bottom: 22px;
+      }
+      .logo {
+        max-width: 320px;
+      }
+      .rules-section {
+        padding: 30px;
       }
     }
   </style>
@@ -181,16 +208,18 @@ SELECTOR_HTML = '''
 <body>
   <div class="container">
     <img src="{{ url_for('static', filename='ADBALogo.png') }}" alt="ADBA Logo" class="logo">
-    <h2>Please choose an action:</h2>
+    <h2>Draw Generator</h2>
+    <div class="button-container">
       <form action="{{ url_for('race_draw.race_draw') }}" method="get">
-        <button type="submit" class="btn btn-primary">Create a Race Draw from Template</button>
+        <button type="submit" class="btn btn-primary">Race Draw from Template</button>
       </form>
       <form action="{{ url_for('race_draw.race_draw_manual') }}" method="get">
-        <button type="submit" class="btn btn-info">Create a Race Draw Manually</button>
+        <button type="submit" class="btn btn-info">Race Draw Manually</button>
       </form>
       <form action="{{ url_for('finals_draw.finals_draw') }}" method="get">
-        <button type="submit" class="btn btn-success">Create a Finals Draw</button>
+        <button type="submit" class="btn btn-success">Finals Draw</button>
       </form>
+    </div>
     
     <div class="rules-section">
       <h2>Current rules with heat generation:</h2>
@@ -220,6 +249,12 @@ FINALS_UPLOAD_HTML = '''
 def selector():
     return render_template_string(SELECTOR_HTML)
 
+@app.route('/selector')
+def selector_page():
+    return render_template_string(SELECTOR_HTML)
+
 if __name__ == '__main__':
     # Force restart - change made to ensure reload
+    print("Starting ADBA Race Draw application...")
+    print("Visit: http://127.0.0.1:5000")
     app.run(debug=True, host='127.0.0.1', port=5000)

@@ -234,8 +234,10 @@ FINALS_UPLOAD_HTML = '''
       .btn, .file-btn {
         width: 100%;
         margin-bottom: 10px;
-        padding: 12px 16px;
-        font-size: 16px;
+        padding: 16px 20px;
+        font-size: 18px;
+        min-height: 60px;
+        touch-action: manipulation;
       }
     }
     
@@ -267,8 +269,10 @@ FINALS_UPLOAD_HTML = '''
         min-width: 60px;
       }
       .btn, .file-btn {
-        padding: 10px 14px;
-        font-size: 15px;
+        padding: 18px 16px;
+        font-size: 17px;
+        min-height: 65px;
+        font-weight: 600;
       }
       .inline-input-container {
         flex-direction: column;
@@ -278,11 +282,39 @@ FINALS_UPLOAD_HTML = '''
         margin-bottom: 5px;
         text-align: center;
       }
+      .data-table input[type="text"] {
+        padding: 8px;
+        font-size: 16px;
+        min-height: 40px;
+      }
     }
+    
+    /* High DPI devices like Samsung S24 */
+    @media (max-width: 480px) and (-webkit-min-device-pixel-ratio: 2) {
+      .btn, .file-btn {
+        padding: 20px 18px;
+        font-size: 19px;
+        min-height: 70px;
+        font-weight: 700;
+      }
+      h2 {
+        font-size: 1.5rem;
+      }
+      h3, h4 {
+        font-size: 1.3rem;
+      }
       .data-table th, .data-table td,
       .summary-table th, .summary-table td,
       .finals-table th, .finals-table td {
-        padding: 4px;
+        padding: 6px;
+        font-size: 16px;
+        min-width: 70px;
+      }
+      .data-table input[type="text"] {
+        padding: 10px;
+        font-size: 17px;
+        min-height: 45px;
+        border-width: 2px;
       }
     }
   </style>
@@ -396,10 +428,21 @@ FINALS_UPLOAD_HTML = '''
     /* Mobile optimizations */
     @media (max-width: 480px) {
       .upload-btn, .file-btn {
-        padding: 12px 16px;
-        font-size: 16px;
+        padding: 16px 20px;
+        font-size: 18px;
         width: 100%;
         margin-bottom: 10px;
+        min-height: 60px;
+      }
+    }
+    
+    /* High DPI devices like Samsung S24 */
+    @media (max-width: 480px) and (-webkit-min-device-pixel-ratio: 2) {
+      .upload-btn, .file-btn {
+        padding: 18px 22px;
+        font-size: 19px;
+        min-height: 65px;
+        font-weight: 700;
       }
     }
   </style>

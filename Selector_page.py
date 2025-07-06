@@ -54,6 +54,8 @@ SELECTOR_HTML = '''
       transition: all 0.3s ease;
       text-align: left;
       font-weight: 500;
+      min-height: 50px;
+      touch-action: manipulation;
     }
     .btn:hover {
       transform: translateY(-2px);
@@ -107,9 +109,10 @@ SELECTOR_HTML = '''
         font-size: 1.1rem;
       }
       .btn {
-        padding: 14px 16px;
-        font-size: 15px;
+        padding: 18px 20px;
+        font-size: 18px;
         text-align: center;
+        min-height: 60px;
       }
       .rules-section {
         margin-top: 20px;
@@ -134,17 +137,38 @@ SELECTOR_HTML = '''
         margin-bottom: 15px;
       }
       .btn {
-        padding: 12px 14px;
-        font-size: 14px;
-        border-radius: 4px;
+        padding: 20px 16px;
+        font-size: 19px;
+        border-radius: 8px;
+        min-height: 70px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
       }
       .rules-section {
         margin-top: 15px;
         padding: 12px;
       }
       .rule-item {
-        font-size: 14px;
-        margin-bottom: 8px;
+        font-size: 15px;
+        margin-bottom: 10px;
+        line-height: 1.6;
+      }
+    }
+    
+    /* High DPI devices like Samsung S24 */
+    @media (max-width: 480px) and (-webkit-min-device-pixel-ratio: 2) {
+      .btn {
+        padding: 22px 18px;
+        font-size: 20px;
+        min-height: 75px;
+        font-weight: 600;
+      }
+      h2 {
+        font-size: 1.4rem;
+      }
+      .rule-item {
+        font-size: 16px;
       }
     }
   </style>

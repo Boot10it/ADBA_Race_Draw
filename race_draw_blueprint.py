@@ -271,8 +271,10 @@ HTML_FORM = '''
       .btn, .file-btn {
         width: 100%;
         margin-bottom: 10px;
-        padding: 12px 16px;
-        font-size: 16px;
+        padding: 16px 20px;
+        font-size: 18px;
+        min-height: 60px;
+        touch-action: manipulation;
       }
     }
     
@@ -302,8 +304,10 @@ HTML_FORM = '''
         min-width: 60px;
       }
       .btn, .file-btn {
-        padding: 10px 14px;
-        font-size: 15px;
+        padding: 18px 16px;
+        font-size: 17px;
+        min-height: 65px;
+        font-weight: 600;
       }
       .inline-input-container {
         flex-direction: column;
@@ -312,6 +316,27 @@ HTML_FORM = '''
       .inline-input-container label {
         margin-bottom: 5px;
         text-align: center;
+      }
+    }
+    
+    /* High DPI devices like Samsung S24 */
+    @media (max-width: 480px) and (-webkit-min-device-pixel-ratio: 2) {
+      .btn, .file-btn {
+        padding: 20px 18px;
+        font-size: 19px;
+        min-height: 70px;
+        font-weight: 700;
+      }
+      h2 {
+        font-size: 1.5rem;
+      }
+      h3 {
+        font-size: 1.3rem;
+      }
+      input[type="number"], input[type="file"] {
+        padding: 12px;
+        font-size: 17px;
+        min-height: 50px;
       }
     }
   </style>
@@ -843,8 +868,14 @@ def race_draw_manual():
               }
               .team-table th, .team-table td,
               .race-table th, .race-table td {
-                padding: 6px;
-                min-width: 80px;
+                padding: 8px;
+                min-width: 100px;
+                font-size: 16px;
+              }
+              .team-table input[type="text"], .team-table select {
+                padding: 8px;
+                font-size: 16px;
+                min-height: 40px;
               }
               input[type="number"] {
                 max-width: 100%;
@@ -852,8 +883,9 @@ def race_draw_manual():
               .btn {
                 width: 100%;
                 margin-bottom: 10px;
-                padding: 12px 16px;
-                font-size: 16px;
+                padding: 16px 20px;
+                font-size: 18px;
+                min-height: 60px;
               }
             }
             
@@ -876,16 +908,23 @@ def race_draw_manual():
                 text-align: center;
               }
               .team-table, .race-table {
-                font-size: 12px;
+                font-size: 14px;
               }
               .team-table th, .team-table td,
               .race-table th, .race-table td {
-                padding: 4px;
-                min-width: 60px;
+                padding: 6px;
+                min-width: 80px;
+                font-size: 16px;
+              }
+              .team-table input[type="text"], .team-table select {
+                padding: 10px;
+                font-size: 16px;
+                min-height: 45px;
               }
               .btn {
-                padding: 10px 14px;
-                font-size: 15px;
+                padding: 18px 16px;
+                font-size: 17px;
+                min-height: 65px;
               }
               .inline-input-container {
                 flex-direction: column;
@@ -894,6 +933,28 @@ def race_draw_manual():
               .inline-input-container label {
                 margin-bottom: 5px;
                 text-align: center;
+              }
+            }
+            
+            /* High DPI devices like Samsung S24 - Manual Entry */
+            @media (max-width: 480px) and (-webkit-min-device-pixel-ratio: 2) {
+              .team-table th, .team-table td,
+              .race-table th, .race-table td {
+                padding: 8px;
+                font-size: 17px;
+                min-width: 90px;
+              }
+              .team-table input[type="text"], .team-table select {
+                padding: 12px;
+                font-size: 17px;
+                min-height: 50px;
+                border-width: 2px;
+              }
+              .btn {
+                padding: 20px 18px;
+                font-size: 19px;
+                min-height: 70px;
+                font-weight: 700;
               }
             }
           </style>

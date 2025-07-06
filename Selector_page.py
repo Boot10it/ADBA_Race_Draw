@@ -89,86 +89,107 @@ SELECTOR_HTML = '''
     /* Responsive design */
     @media (max-width: 768px) {
       body {
-        padding: 10px;
+        padding: 15px;
+        font-size: 18px;
       }
       .container {
-        padding: 15px;
+        padding: 20px;
         margin: 0;
         border-radius: 0;
       }
       .logo {
-        max-width: 200px;
-        margin-bottom: 15px;
-      }
-      h2 {
-        font-size: 1.3rem;
-        text-align: center;
+        max-width: 250px;
         margin-bottom: 20px;
       }
+      h2 {
+        font-size: 1.6rem;
+        text-align: center;
+        margin-bottom: 25px;
+      }
       h3 {
-        font-size: 1.1rem;
+        font-size: 1.3rem;
       }
       .btn {
-        padding: 18px 20px;
-        font-size: 18px;
+        padding: 22px 24px;
+        font-size: 20px;
         text-align: center;
-        min-height: 60px;
+        min-height: 70px;
+        font-weight: 600;
       }
       .rules-section {
-        margin-top: 20px;
-        padding: 15px;
+        margin-top: 25px;
+        padding: 20px;
+      }
+      .rule-item {
+        font-size: 17px;
+        margin-bottom: 15px;
+        line-height: 1.6;
       }
     }
     
     @media (max-width: 480px) {
       body {
-        padding: 5px;
+        padding: 10px;
+        font-size: 19px;
       }
       .container {
-        padding: 10px;
+        padding: 15px;
         margin: 0;
       }
       .logo {
-        max-width: 150px;
-        margin-bottom: 10px;
+        max-width: 200px;
+        margin-bottom: 20px;
       }
       h2 {
-        font-size: 1.2rem;
-        margin-bottom: 15px;
+        font-size: 1.5rem;
+        margin-bottom: 20px;
       }
       .btn {
-        padding: 20px 16px;
-        font-size: 19px;
+        padding: 24px 20px;
+        font-size: 21px;
         border-radius: 8px;
-        min-height: 70px;
+        min-height: 75px;
         display: flex;
         align-items: center;
         justify-content: center;
+        font-weight: 700;
+        margin-bottom: 15px;
       }
       .rules-section {
-        margin-top: 15px;
-        padding: 12px;
+        margin-top: 20px;
+        padding: 18px;
       }
       .rule-item {
-        font-size: 15px;
-        margin-bottom: 10px;
-        line-height: 1.6;
+        font-size: 18px;
+        margin-bottom: 12px;
+        line-height: 1.7;
       }
     }
     
     /* High DPI devices like Samsung S24 */
     @media (max-width: 480px) and (-webkit-min-device-pixel-ratio: 2) {
-      .btn {
-        padding: 22px 18px;
+      body {
         font-size: 20px;
-        min-height: 75px;
-        font-weight: 600;
+      }
+      .btn {
+        padding: 26px 22px;
+        font-size: 23px;
+        min-height: 80px;
+        font-weight: 700;
+        margin-bottom: 18px;
       }
       h2 {
-        font-size: 1.4rem;
+        font-size: 1.7rem;
       }
       .rule-item {
-        font-size: 16px;
+        font-size: 19px;
+        line-height: 1.8;
+      }
+      .logo {
+        max-width: 220px;
+      }
+      .rules-section {
+        padding: 20px;
       }
     }
   </style>
@@ -220,6 +241,12 @@ FINALS_UPLOAD_HTML = '''
 def selector():
     return render_template_string(SELECTOR_HTML)
 
+@app.route('/selector')
+def selector_page():
+    return render_template_string(SELECTOR_HTML)
+
 if __name__ == '__main__':
     # Force restart - change made to ensure reload
+    print("Starting ADBA Race Draw application...")
+    print("Visit: http://127.0.0.1:5000")
     app.run(debug=True, host='127.0.0.1', port=5000)

@@ -91,19 +91,29 @@ SELECTOR_HTML = '''
       }
       .container {
         padding: 15px;
+        margin: 0;
+        border-radius: 0;
       }
       .logo {
-        max-width: 250px;
+        max-width: 200px;
+        margin-bottom: 15px;
       }
       h2 {
         font-size: 1.3rem;
+        text-align: center;
+        margin-bottom: 20px;
       }
       h3 {
         font-size: 1.1rem;
       }
       .btn {
-        padding: 12px 16px;
+        padding: 14px 16px;
         font-size: 15px;
+        text-align: center;
+      }
+      .rules-section {
+        margin-top: 20px;
+        padding: 15px;
       }
     }
     
@@ -113,16 +123,28 @@ SELECTOR_HTML = '''
       }
       .container {
         padding: 10px;
+        margin: 0;
       }
       .logo {
-        max-width: 200px;
+        max-width: 150px;
+        margin-bottom: 10px;
       }
       h2 {
         font-size: 1.2rem;
+        margin-bottom: 15px;
       }
       .btn {
-        padding: 10px 14px;
+        padding: 12px 14px;
         font-size: 14px;
+        border-radius: 4px;
+      }
+      .rules-section {
+        margin-top: 15px;
+        padding: 12px;
+      }
+      .rule-item {
+        font-size: 14px;
+        margin-bottom: 8px;
       }
     }
   </style>

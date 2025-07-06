@@ -257,12 +257,22 @@ HTML_FORM = '''
       }
       .race-table {
         font-size: 14px;
+        overflow-x: auto;
+        display: block;
+        white-space: nowrap;
       }
       .race-table th, .race-table td {
         padding: 6px;
+        min-width: 80px;
       }
       input[type="number"], input[type="file"] {
         max-width: 100%;
+      }
+      .btn, .file-btn {
+        width: 100%;
+        margin-bottom: 10px;
+        padding: 12px 16px;
+        font-size: 16px;
       }
     }
     
@@ -278,12 +288,30 @@ HTML_FORM = '''
       }
       h2 {
         font-size: 1.3rem;
+        text-align: center;
       }
       h3 {
         font-size: 1.1rem;
+        text-align: center;
       }
       .race-table {
         font-size: 12px;
+      }
+      .race-table th, .race-table td {
+        padding: 4px;
+        min-width: 60px;
+      }
+      .btn, .file-btn {
+        padding: 10px 14px;
+        font-size: 15px;
+      }
+      .inline-input-container {
+        flex-direction: column;
+        align-items: stretch;
+      }
+      .inline-input-container label {
+        margin-bottom: 5px;
+        text-align: center;
       }
     }
   </style>
@@ -809,13 +837,23 @@ def race_draw_manual():
               }
               .team-table, .race-table {
                 font-size: 14px;
+                overflow-x: auto;
+                display: block;
+                white-space: nowrap;
               }
               .team-table th, .team-table td,
               .race-table th, .race-table td {
                 padding: 6px;
+                min-width: 80px;
               }
               input[type="number"] {
                 max-width: 100%;
+              }
+              .btn {
+                width: 100%;
+                margin-bottom: 10px;
+                padding: 12px 16px;
+                font-size: 16px;
               }
             }
             
@@ -831,9 +869,11 @@ def race_draw_manual():
               }
               h2 {
                 font-size: 1.3rem;
+                text-align: center;
               }
               h3 {
                 font-size: 1.1rem;
+                text-align: center;
               }
               .team-table, .race-table {
                 font-size: 12px;
@@ -841,6 +881,19 @@ def race_draw_manual():
               .team-table th, .team-table td,
               .race-table th, .race-table td {
                 padding: 4px;
+                min-width: 60px;
+              }
+              .btn {
+                padding: 10px 14px;
+                font-size: 15px;
+              }
+              .inline-input-container {
+                flex-direction: column;
+                align-items: stretch;
+              }
+              .inline-input-container label {
+                margin-bottom: 5px;
+                text-align: center;
               }
             }
           </style>

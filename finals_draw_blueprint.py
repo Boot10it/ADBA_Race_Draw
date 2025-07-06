@@ -215,17 +215,27 @@ FINALS_UPLOAD_HTML = '''
       }
       .data-table, .summary-table, .finals-table {
         font-size: 14px;
+        overflow-x: auto;
+        display: block;
+        white-space: nowrap;
       }
       .data-table th, .data-table td,
       .summary-table th, .summary-table td,
       .finals-table th, .finals-table td {
         padding: 6px;
+        min-width: 80px;
       }
       .lanes-input-group {
         flex-direction: column;
       }
       .lanes-input-item {
         min-width: 100%;
+      }
+      .btn, .file-btn {
+        width: 100%;
+        margin-bottom: 10px;
+        padding: 12px 16px;
+        font-size: 16px;
       }
     }
     
@@ -241,13 +251,34 @@ FINALS_UPLOAD_HTML = '''
       }
       h2 {
         font-size: 1.3rem;
+        text-align: center;
       }
       h3, h4 {
         font-size: 1.1rem;
+        text-align: center;
       }
       .data-table, .summary-table, .finals-table {
         font-size: 12px;
       }
+      .data-table th, .data-table td,
+      .summary-table th, .summary-table td,
+      .finals-table th, .finals-table td {
+        padding: 4px;
+        min-width: 60px;
+      }
+      .btn, .file-btn {
+        padding: 10px 14px;
+        font-size: 15px;
+      }
+      .inline-input-container {
+        flex-direction: column;
+        align-items: stretch;
+      }
+      .inline-input-container label {
+        margin-bottom: 5px;
+        text-align: center;
+      }
+    }
       .data-table th, .data-table td,
       .summary-table th, .summary-table td,
       .finals-table th, .finals-table td {

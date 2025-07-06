@@ -114,15 +114,9 @@ HTML_FORM = '''
 <head>
   <title>Race Draw Generator</title>
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <link rel="stylesheet" href="{{ url_for('static', filename='Shared.css') }}">
   <style>
-    body {
-      font-family: Arial, sans-serif;
-      margin: 0;
-      padding: 20px;
-      background-color: #1a1a1a;
-      color: #ffffff;
-      line-height: 1.5;
-    }
+    /* Only keep page-specific styles here */
     .container {
       max-width: 1000px;
       margin: 0 auto;
@@ -131,9 +125,15 @@ HTML_FORM = '''
       border-radius: 8px;
       box-shadow: 0 2px 10px rgba(0,0,0,0.3);
     }
-    h2, h3 {
+    h2 {
       color: #ffffff;
-      margin-bottom: 16px;
+      margin-bottom: 20px;
+      font-size: 1.5rem;
+    }
+    h3 {
+      color: #ffffff;
+      margin-bottom: 15px;
+      font-size: 1.2rem;
     }
     .form-section {
       margin-bottom: 30px;
@@ -162,12 +162,13 @@ HTML_FORM = '''
       color: #ffffff;
     }
     .example-image {
-      max-width: 400px;
+      width: 100%;
+      max-width: 400px; /* or whatever max you want */
       height: auto;
+      display: block;
       margin: 16px 0;
       border: 2px solid #555;
       border-radius: 4px;
-      display: block;
     }
     .csv-section {
       margin-top: 16px;
@@ -240,104 +241,74 @@ HTML_FORM = '''
       display: none;
     }
     
+    /* Button styles */
+    .btn {
+      width: 100%;
+      padding: 12px 18px;
+      border: none;
+      border-radius: 6px;
+      font-size: 21px;
+      cursor: pointer;
+      transition: all 0.3s ease;
+      text-align: left;
+      font-weight: 500;
+      min-height: 54px;
+      touch-action: manipulation;
+    }
+    .btn:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+    }
+    .btn-primary { background-color: #007bff; color: white; }
+    .btn-info { background-color: #17a2b8; color: white; }
+    .btn-success { background-color: #28a745; color: white; }
+    
     /* Responsive design */
     @media (max-width: 768px) {
       body {
         padding: 25px;
         font-size: 24px;
       }
-      .container {
-        padding: 30px;
-      }
-      .form-section {
-        padding: 25px;
-      }
-      .example-image {
-        max-width: 100%;
-        margin: 20px auto;
-      }
-      .race-table {
-        font-size: 20px;
-        overflow-x: auto;
-        display: block;
-        white-space: nowrap;
-      }
-      .race-table th, .race-table td {
-        padding: 12px;
-        min-width: 120px;
-      }
-      input[type="number"], input[type="file"] {
-        max-width: 100%;
-        padding: 20px;
-        font-size: 24px;
-        min-height: 70px;
-      }
-      .btn, .file-btn {
-        width: 100%;
-        margin-bottom: 20px;
-        padding: 35px 30px;
-        font-size: 28px;
-        min-height: 100px;
-        font-weight: 700;
-        touch-action: manipulation;
-      }
       h2 {
         font-size: 2.2rem;
         text-align: center;
+        margin-bottom: 35px;
       }
       h3 {
         font-size: 1.8rem;
-        text-align: center;
+      }
+      .btn {
+        padding: 24px 27px;
+        font-size: 27px;
+        min-height: 72px;
+        font-weight: 600;
+        margin-bottom: 18px;
       }
     }
-    
+
     @media (max-width: 480px) {
       body {
         padding: 20px;
         font-size: 26px;
       }
-      .container {
-        padding: 25px;
-      }
-      .form-section {
-        padding: 20px;
-      }
       h2 {
-        font-size: 2.0rem;
-        text-align: center;
+        font-size: 1.0rem;
+        margin-bottom: 20px;
       }
       h3 {
-        font-size: 1.6rem;
-        text-align: center;
+        font-size: 0.8rem;
+        margin-bottom: 15px;
       }
-      .race-table {
-        font-size: 18px;
-      }
-      .race-table th, .race-table td {
-        padding: 10px;
-        min-width: 100px;
-      }
-      .btn, .file-btn {
-        padding: 40px 25px;
-        font-size: 30px;
-        min-height: 110px;
-        font-weight: 700;
+      .btn {
+        padding: 16px 13px;
+        font-size: 15px;
         border-radius: 12px;
-        margin-bottom: 25px;
+        min-height: 40px;
+        margin-bottom: 9px;
       }
-      .inline-input-container {
-        flex-direction: column;
-        align-items: stretch;
-      }
-      .inline-input-container label {
-        margin-bottom: 10px;
-        text-align: center;
-        font-size: 24px;
-      }
-      input[type="number"], input[type="file"] {
-        padding: 18px;
-        font-size: 26px;
-        min-height: 70px;
+      
+      .subheading {
+        font-size: 0.8rem;
       }
     }
     
@@ -346,34 +317,15 @@ HTML_FORM = '''
       body {
         font-size: 28px;
       }
-      .btn, .file-btn {
-        padding: 45px 30px;
-        font-size: 34px;
-        min-height: 120px;
-        font-weight: 700;
+      .btn {
+        padding: 30px 24px;
+        font-size: 20px;
+        min-height: 72px;
         border-radius: 15px;
-        margin-bottom: 30px;
+        margin-bottom: 18px;
       }
       h2 {
-        font-size: 2.4rem;
-      }
-      h3 {
-        font-size: 1.8rem;
-      }
-      input[type="number"], input[type="file"] {
-        padding: 22px;
-        font-size: 28px;
-        min-height: 80px;
-      }
-      .inline-input-container label {
-        font-size: 26px;
-      }
-      .race-table {
-        font-size: 20px;
-      }
-      .race-table th, .race-table td {
-        padding: 12px;
-        min-width: 110px;
+        font-size: 1.5rem;
       }
     }
   </style>
@@ -383,28 +335,24 @@ HTML_FORM = '''
     <h2>Creating a Race Draw using a Template</h2>
     
     <div class="form-section">
-      <label>Either Download the template, fill it out then select Generate.</label>
+      <label class="subheading">Either Download the template, fill out, select Generate.)</label>
       <form action="{{ url_for('race_draw.download_template') }}" method="get" style="margin-top:16px;">
         <button type="submit" class="file-btn">1. Download Template</button>
       </form>
       
       <h3 style="margin-top:24px;">OR</h3>
       <div class="csv-section">
+        <label class="subheading">Create a CSV (with "Team Name" and "Division" columns)</label>
         <img src="{{ url_for('static', filename='Team Names.png') }}" alt="CSV Example" class="example-image">
-        <label>Create a CSV (with "Team Name" and "Division" columns)</label>
-        
         <form method="post" enctype="multipart/form-data" style="margin-top:16px;">
           <div class="input-group">
             <label for="teams_csv" class="file-btn" style="display:inline-block; margin-bottom:12px; color:white;">2. Choose Upload File</label>
             <input type="file" id="teams_csv" name="teams_csv" required onchange="document.getElementById('file-name').textContent = this.files[0]?.name || ''; document.getElementById('file-name').style.display = this.files[0] ? 'block' : 'none';">
             <div id="file-name" class="file-name-display"></div>
           </div>
-          
           <div class="input-group" style="display: flex; align-items: center; gap: 12px;">
-            <label for="num_lanes" style="margin-bottom: 0; white-space: nowrap;">Number of Lanes:</label>
-            <input type="number" id="num_lanes" name="num_lanes" min="1" required placeholder="Enter Number of lanes" style="max-width: 200px;">
+          <input type="number" id="num_lanes" name="num_lanes" min="1" required placeholder="Enter Number of lanes" style="max-width: 200px;">
           </div>
-          
           <input type="submit" value="3. Generate Race Draw for Heats" class="file-btn">
         </form>
       </div>
@@ -743,480 +691,487 @@ def race_draw_manual():
         <head>
           <title>Create a Race Draw (Manual Entry)</title>
           <meta name="viewport" content="width=device-width, initial-scale=1.0">
+          <link rel="stylesheet" href="{{ url_for('static', filename='Shared.css') }}">
           <style>
-            body {
-              font-family: Arial, sans-serif;
-              margin: 0;
-              padding: 20px;
-              background-color: #1a1a1a;
-              color: #ffffff;
-              line-height: 1.5;
-            }
-            .container {
-              max-width: 1200px;
-              margin: 0 auto;
-              background-color: #2d2d2d;
-              padding: 20px;
-              border-radius: 8px;
-              box-shadow: 0 2px 10px rgba(0,0,0,0.3);
-            }
-            h2, h3 {
-              color: #ffffff;
-              margin-bottom: 16px;
-            }
-            .form-section {
-              margin-bottom: 30px;
-              padding: 20px;
-              background-color: #3d3d3d;
-              border-radius: 6px;
-              border-left: 4px solid #007bff;
-            }
-            .team-table {
-              width: 100%;
-              border-collapse: collapse;
-              margin-bottom: 20px;
-              overflow-x: auto;
-              table-layout: fixed;
-            }
-            .team-table th, .team-table td {
-              border: 1px solid #555;
-              padding: 8px;
-              text-align: left;
-            }
-            .team-table th {
-              background-color: #4d4d4d;
-              font-weight: 600;
-              color: #ffffff;
-            }
-            .team-table input[type="text"] {
-              width: 100%;
-              padding: 6px;
-              border: 1px solid #555;
-              border-radius: 3px;
-              font-size: 14px;
-              background-color: #4d4d4d;
-              color: #ffffff;
-              box-sizing: border-box;
-              min-width: 0;
-            }
-            .team-table select {
-              width: 100%;
-              padding: 6px;
-              border: 1px solid #555;
-              border-radius: 3px;
-              font-size: 14px;
-              background-color: #4d4d4d;
-              color: #ffffff;
-              box-sizing: border-box;
-              min-width: 0;
-            }
-              color: #ffffff;
-            }
-            .race-table {
-              width: 100%;
-              border-collapse: collapse;
-              margin-bottom: 20px;
-              overflow-x: auto;
-              display: block;
-              white-space: nowrap;
-            }
-            .race-table table {
-              width: 100%;
-              min-width: 400px;
-            }
-            .race-table th, .race-table td {
-              border: 1px solid #555;
-              padding: 8px;
-              text-align: left;
-            }
-            .race-table th {
-              background-color: #4d4d4d;
-              font-weight: 600;
-              color: #ffffff;
-            }
-            .input-group {
-              margin-bottom: 16px;
-            }
-            .input-group label {
-              display: block;
-              margin-bottom: 8px;
-              font-weight: 500;
-              color: #ffffff;
-            }
-            input[type="number"], input[type="file"] {
-              width: 100%;
-              max-width: 300px;
-              padding: 10px;
-              border: 1px solid #555;
-              border-radius: 4px;
-              font-size: 16px;
-              background-color: #4d4d4d;
-              color: #ffffff;
-            }
-            .duplicate-highlight {
-              background-color: #8b4a4a !important;
-              color: #ffffff !important;
-            }
-            .empty-cell {
-              color: #ff6b6b;
-              font-weight: bold;
-            }
-            .error-list {
-              background-color: #5d2d2d;
-              color: #ff6b6b;
-              padding: 15px;
-              border-radius: 4px;
-              border: 1px solid #8b4a4a;
-              margin: 16px 0;
-            }
-            .info-section {
-              background-color: #2d4a5d;
-              color: #17a2b8;
-              padding: 15px;
-              border-radius: 4px;
-              border: 1px solid #4a7c95;
-              margin: 16px 0;
-            }
-            .warning-section {
-              background-color: #5d4e2d;
-              color: #ffc107;
-              padding: 15px;
-              border-radius: 4px;
-              border: 1px solid #8b7355;
-              margin: 16px 0;
-            }
-            
-            /* Responsive design */
-            @media (max-width: 768px) {
-              body {
-                padding: 10px;
-              }
-              .container {
-                padding: 15px;
-              }
-              .form-section {
-                padding: 15px;
-              }
-              .team-table, .race-table {
-                font-size: 14px;
-                overflow-x: auto;
-                display: block;
-                white-space: nowrap;
-              }
-              .team-table th, .team-table td,
-              .race-table th, .race-table td {
-                padding: 8px;
-                min-width: 100px;
-                font-size: 16px;
-              }
-              .team-table input[type="text"], .team-table select {
-                padding: 8px;
-                font-size: 16px;
-                min-height: 40px;
-              }
-              input[type="number"] {
-                max-width: 100%;
-              }
-              .btn {
-                width: 100%;
-                margin-bottom: 10px;
-                padding: 16px 20px;
-                font-size: 18px;
-                min-height: 60px;
-              }
-            }
-            
-            @media (max-width: 480px) {
-              body {
-                padding: 5px;
-              }
-              .container {
-                padding: 10px;
-              }
-              .form-section {
-                padding: 10px;
-              }
-              h2 {
-                font-size: 1.3rem;
-                text-align: center;
-              }
-              h3 {
-                font-size: 1.1rem;
-                text-align: center;
-              }
-              .team-table, .race-table {
-                font-size: 14px;
-              }
-              .team-table th, .team-table td,
-              .race-table th, .race-table td {
-                padding: 6px;
-                min-width: 80px;
-                font-size: 16px;
-              }
-              .team-table input[type="text"], .team-table select {
-                padding: 10px;
-                font-size: 16px;
-                min-height: 45px;
-              }
-              .btn {
-                padding: 18px 16px;
-                font-size: 17px;
-                min-height: 65px;
-              }
-              .inline-input-container {
-                flex-direction: column;
-                align-items: stretch;
-              }
-              .inline-input-container label {
-                margin-bottom: 5px;
-                text-align: center;
-              }
-            }
-            
-            /* High DPI devices like Samsung S24 - Manual Entry */
-            @media (max-width: 480px) and (-webkit-min-device-pixel-ratio: 2) {
-              .team-table th, .team-table td,
-              .race-table th, .race-table td {
-                padding: 8px;
-                font-size: 17px;
-                min-width: 90px;
-              }
-              .team-table input[type="text"], .team-table select {
-                padding: 12px;
-                font-size: 17px;
-                min-height: 50px;
-                border-width: 2px;
-              }
-              .btn {
-                padding: 20px 18px;
-                font-size: 19px;
-                min-height: 70px;
-                font-weight: 700;
-              }
-            }
-          </style>
-        </head>
-        <body>
-          <div class="container">
-            <h2>Create a Race Draw (Manual Entry)</h2>
-            
-            <div class="form-section">
-              <form method="post">
-                <div class="input-group">
-                  <label>Enter Team Names and select Divisions:</label>
-                  <div style="overflow-x: auto;">
-                    <table class="team-table">
-                      <tr>
-                        <th style="width: 50px;">#</th>
-                        <th style="width: 60%;">Team Name</th>
-                        <th style="width: 30%;">Division</th>
-                      </tr>
-                      {% for i in range(teams|length) %}
-                      <tr>
-                        <td>{{ i + 1 }}</td>
-                        <td>
-                          <input type="text" name="Team_Name" value="{{ teams[i]['Team Name'] }}" >
-                        </td>
-                        <td>
-                          <select name="Team_Division" >
-                            {% set divval = teams[i]['Division'] %}
-                            <option value="Mixed"  {% if divval == 'Mixed' %}selected{% endif %}>Mixed</option>
-                            <option value="Womens" {% if divval == 'Womens' %}selected{% endif %}>Womens</option>
-                            <option value="BCS"    {% if divval == 'BCS' %}selected{% endif %}>BCS</option>
-                            <option value="Open"   {% if divval == 'Open' %}selected{% endif %}>Open</option>
-                          </select>
-                        </td>
-                      </tr>
-                      {% endfor %}
-                      {% for i in range(4 - teams|length) %}
-                      <tr>
-                        <td>{{ teams|length + i + 1 }}</td>
-                        <td><input type="text" name="Team_Name"></td>
-                        <td>
-                          <select name="Team_Division">
-                            <option value="">--Select--</option>
-                            <option value="Mixed">Mixed</option>
-                            <option value="Womens">Womens</option>
-                            <option value="BCS">BCS</option>
-                            <option value="Open">Open</option>
-                          </select>
-                        </td>
-                      </tr>
-                      {% endfor %}
-                    </table>
-                  </div>
-                  
-                  <button type="button" id="add-row-btn" class="file-btn" style="margin-bottom:10px;">+ Add Team</button>
-                  <div class="info-section">
-                    <div>• Add a new line for a Team by clicking the + button</div>
-                    <div>• If you want to delete a Team then just leave the line blank</div>
-                    <div>• If you see an 'EMPTY' for Team in the draw below it is just informative, as there are not enough teams to fill the lanes</div>
-                    <div>• If a Team below is highlighted in red, it means that Team is duplicated in the list above</div>
-                  </div>
-                </div>
-                
-                <div class="input-group" style="display: flex; align-items: center; gap: 12px;">
-                  <label for="num_lanes" style="margin-bottom: 0; white-space: nowrap;">Number of Lanes:</label>
-                  <input type="number" id="num_lanes" name="num_lanes" min="1" required placeholder="Enter Number of lanes" style="max-width: 200px;">
-                </div>
-                
-                <input type="submit" value="Generate Race Draw for Heats" class="file-btn" style="margin-top:10px;">
-                
-                <div class="info-section" style="margin-top:20px;">
-                  If you want to re-generate the list, enter in the number of lanes and click 'Generate....' again
-                </div>
-              </form>
-            
-            {% if errors %}
-              <div class="error-list">
-                <ul>
-                {% for error in errors %}
-                  <li>{{ error }}</li>
-                {% endfor %}
-                </ul>
-              </div>
-            {% endif %}
-            
-            {% if heat1 %}
-              <h3>--- Heat 1 Draw ---</h3>
-              {% for race in heat1 %}
-                <div style="margin-bottom:20px;">
-                  <b>Race {{loop.index}}:</b>
-                  <div class="race-table">
-                    <table>
-                      <tr>
-                        <th>Lane</th>
-                        <th style="width:220px;">Team Name</th>
-                        <th>Division</th>
-                      </tr>
-                      {% for team in race %}
-                      <tr>
-                        <td>{{loop.index}}</td>
-                        <td style="width:220px;{% if team['Team Name'] in duplicate_names %} background-color: #ffcccc;{% endif %}">
-                          {% if team and team['Team Name'] %}
-                            {{ team['Team Name'] }}
-                          {% else %}
-                            <span class="empty-cell">EMPTY</span>
-                          {% endif %}
-                        </td>
-                        <td>{{team['Division'] if team else ""}}</td>
-                      </tr>
-                      {% endfor %}
-                    </table>
-                  </div>
-                </div>
+            /* Only keep page-specific styles here */
+    .container {
+      max-width: 1000px;
+      margin: 0 auto;
+      background-color: #2d2d2d;
+      padding: 20px;
+      border-radius: 8px;
+      box-shadow: 0 2px 10px rgba(0,0,0,0.3);
+    }
+    h2 {
+      color: #ffffff;
+      margin-bottom: 20px;
+      font-size: 1.5rem;
+    }
+    h3 {
+      color: #ffffff;
+      margin-bottom: 15px;
+      font-size: 1.2rem;
+    }
+    .form-section {
+      margin-bottom: 30px;
+      padding: 20px;
+      background-color: #3d3d3d;
+      border-radius: 6px;
+      border-left: 4px solid #007bff;
+    }
+    .team-table {
+      width: 100%;
+      border-collapse: collapse;
+      margin-bottom: 20px;
+      overflow-x: auto;
+      table-layout: fixed;
+    }
+    .team-table th, .team-table td {
+      border: 1px solid #555;
+      padding: 8px;
+      text-align: left;
+    }
+    .team-table th {
+      background-color: #4d4d4d;
+      font-weight: 600;
+      color: #ffffff;
+    }
+    .team-table input[type="text"] {
+      width: 100%;
+      padding: 6px;
+      border: 1px solid #555;
+      border-radius: 3px;
+      font-size: 14px;
+      background-color: #4d4d4d;
+      color: #ffffff;
+      box-sizing: border-box;
+      min-width: 0;
+    }
+    .team-table select {
+      width: 100%;
+      padding: 6px;
+      border: 1px solid #555;
+      border-radius: 3px;
+      font-size: 14px;
+      background-color: #4d4d4d;
+      color: #ffffff;
+      box-sizing: border-box;
+      min-width: 0;
+    }
+    .input-group {
+      margin-bottom: 16px;
+    }
+    .input-group label {
+      display: block;
+      margin-bottom: 8px;
+      font-weight: 500;
+      color: #ffffff;
+    }
+    input[type="number"], input[type="file"] {
+      width: 100%;
+      max-width: 300px;
+      padding: 10px;
+      border: 1px solid #555;
+      border-radius: 4px;
+      font-size: 16px;
+      background-color: #4d4d4d;
+      color: #ffffff;
+    }
+    .example-image {
+      width: 100%;
+      max-width: 400px; /* or whatever max you want */
+      height: auto;
+      display: block;
+      margin: 16px 0;
+      border: 2px solid #555;
+      border-radius: 4px;
+    }
+    .csv-section {
+      margin-top: 16px;
+    }
+    .csv-section label {
+      display: block;
+      margin-bottom: 16px;
+      font-weight: 500;
+      color: #ffffff;
+    }
+    .clearfix::after {
+      content: "";
+      display: table;
+      clear: both;
+    }
+    .race-table {
+      width: 100%;
+      border-collapse: collapse;
+      margin-bottom: 20px;
+      overflow-x: auto;
+      display: block;
+      white-space: nowrap;
+    }
+    .race-table table {
+      width: 100%;
+      min-width: 400px;
+    }
+    .race-table th, .race-table td {
+      border: 1px solid #555;
+      padding: 8px;
+      text-align: left;
+    }
+    .race-table th {
+      background-color: #4d4d4d;
+      font-weight: 600;
+      color: #ffffff;
+    }
+    .duplicate-highlight {
+      background-color: #8b4a4a !important;
+      color: #ffffff !important;
+    }
+    .empty-cell {
+      color: #ff6b6b;
+      font-weight: bold;
+    }
+    .error-list {
+      background-color: #5d2d2d;
+      color: #ff6b6b;
+      padding: 15px;
+      border-radius: 4px;
+      border: 1px solid #8b4a4a;
+      margin: 16px 0;
+    }
+    .success-message {
+      background-color: #2d4d2d;
+      color: #4caf50;
+      padding: 15px;
+      border-radius: 4px;
+      border: 1px solid #4a8b4a;
+      margin: 16px 0;
+      font-weight: bold;
+    }
+    .file-name-display {
+      margin-top: 12px;
+      color: #4caf50;
+      font-weight: bold;
+      padding: 8px;
+      background-color: #2d4d2d;
+      border-radius: 4px;
+      display: none;
+    }
+    
+    /* Button styles */
+    .btn {
+      width: 100%;
+      padding: 12px 18px;
+      border: none;
+      border-radius: 6px;
+      font-size: 21px;
+      cursor: pointer;
+      transition: all 0.3s ease;
+      text-align: left;
+      font-weight: 500;
+      min-height: 54px;
+      touch-action: manipulation;
+    }
+    .btn:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+    }
+    .btn-primary { background-color: #007bff; color: white; }
+    .btn-info { background-color: #17a2b8; color: white; }
+    .btn-success { background-color: #28a745; color: white; }
+    
+    /* Responsive design */
+    @media (max-width: 768px) {
+      body {
+        padding: 25px;
+        font-size: 24px;
+      }
+      h2 {
+        font-size: 2.2rem;
+        text-align: center;
+        margin-bottom: 35px;
+      }
+      h3 {
+        font-size: 1.8rem;
+      }
+      .btn {
+        padding: 24px 27px;
+        font-size: 27px;
+        min-height: 72px;
+        font-weight: 600;
+        margin-bottom: 18px;
+      }
+    }
+
+    @media (max-width: 480px) {
+      body {
+        padding: 20px;
+        font-size: 26px;
+      }
+      h2 {
+        font-size: 1.0rem;
+        margin-bottom: 20px;
+      }
+      h3 {
+        font-size: 0.8rem;
+        margin-bottom: 15px;
+      }
+      .btn {
+        padding: 16px 13px;
+        font-size: 15px;
+        border-radius: 12px;
+        min-height: 40px;
+        margin-bottom: 9px;
+      }
+      
+      .subheading {
+        font-size: 0.8rem;
+      }
+    }
+    
+    /* High DPI devices like Samsung S24 - Manual Entry */
+    @media (max-width: 480px) and (-webkit-min-device-pixel-ratio: 2) {
+      .team-table th, .team-table td,
+      .race-table th, .race-table td {
+        padding: 8px;
+        font-size: 17px;
+        min-width: 90px;
+      }
+      .team-table input[type="text"], .team-table select {
+        padding: 12px;
+        font-size: 17px;
+        min-height: 50px;
+        border-width: 2px;
+      }
+      .btn {
+        padding: 20px 18px;
+        font-size: 19px;
+        min-height: 70px;
+        font-weight: 700;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h2>Create a Race Draw (Manual Entry)</h2>
+    
+    <div class="form-section">
+      <form method="post">
+        <div class="input-group">
+          <label>Enter Team Names and select Divisions:</label>
+          <div style="overflow-x: auto;">
+            <table class="team-table">
+              <tr>
+                <th style="width: 50px;">#</th>
+                <th style="width: 60%;">Team Name</th>
+                <th style="width: 30%;">Division</th>
+              </tr>
+              {% for i in range(teams|length) %}
+              <tr>
+                <td>{{ i + 1 }}</td>
+                <td>
+                  <input type="text" name="Team_Name" value="{{ teams[i]['Team Name'] }}" >
+                </td>
+                <td>
+                  <select name="Team_Division" >
+                    {% set divval = teams[i]['Division'] %}
+                    <option value="Mixed"  {% if divval == 'Mixed' %}selected{% endif %}>Mixed</option>
+                    <option value="Womens" {% if divval == 'Womens' %}selected{% endif %}>Womens</option>
+                    <option value="BCS"    {% if divval == 'BCS' %}selected{% endif %}>BCS</option>
+                    <option value="Open"   {% if divval == 'Open' %}selected{% endif %}>Open</option>
+                  </select>
+                </td>
+              </tr>
               {% endfor %}
-              
-              <h3>--- Heat 2 Draw ---</h3>
-              {% for race in heat2 %}
-                <div style="margin-bottom:20px;">
-                  <b>Race {{heat1|length + loop.index}}:</b>
-                  <div class="race-table">
-                    <table>
-                      <tr>
-                        <th>Lane</th>
-                        <th style="width:220px;">Team Name</th>
-                        <th>Division</th>
-                      </tr>
-                      {% for team in race %}
-                      <tr>
-                        <td>{{loop.index}}</td>
-                        <td style="width:220px;">
-                          {% if team and team['Team Name'] %}
-                            {{ team['Team Name'] }}
-                          {% else %}
-                            <span class="empty-cell">EMPTY</span>
-                          {% endif %}
-                        </td>
-                        <td>{{team['Division'] if team else ""}}</td>
-                      </tr>
-                      {% endfor %}
-                    </table>
-                  </div>
-                </div>
+              {% for i in range(4 - teams|length) %}
+              <tr>
+                <td>{{ teams|length + i + 1 }}</td>
+                <td><input type="text" name="Team_Name"></td>
+                <td>
+                  <select name="Team_Division">
+                    <option value="">--Select--</option>
+                    <option value="Mixed">Mixed</option>
+                    <option value="Womens">Womens</option>
+                    <option value="BCS">BCS</option>
+                    <option value="Open">Open</option>
+                  </select>
+                </td>
+              </tr>
               {% endfor %}
-            {% endif %}
-            
-            {% if heat1 and heat2 %}
-              <div class="warning-section">
-                <label>Ensure you check the last two races of the 'Heat 1' and the first two races of 'Heat 2' so the teams are not the same</label>
-              </div>
-              <form action="{{ url_for('race_draw.export_manual_csv') }}" method="post" style="margin-top:20px;">
-                <button type="submit" class="file-btn">Export as CSV</button>
-             </form>
-           {% endif %}
-           
-          <form action="{{ url_for('selector') }}" method="get" style="margin-top:20px;">
-            <button type="submit" style="background-color:#6c757d; color:white; padding:8px 16px; border:none; border-radius:4px;">
-              Back to Selector Page
-            </button>
-          </form>
+            </table>
+          </div>
+          
+          <button type="button" id="add-row-btn" class="file-btn" style="margin-bottom:10px;">+ Add Team</button>
+          <div class="info-section">
+            <div>• Add a new line for a Team by clicking the + button</div>
+            <div>• If you want to delete a Team then just leave the line blank</div>
+            <div>• If you see an 'EMPTY' for Team in the draw below it is just informative, as there are not enough teams to fill the lanes</div>
+            <div>• If a Team below is highlighted in red, it means that Team is duplicated in the list above</div>
+          </div>
         </div>
         
-        <style>
-          .file-btn {
-              background-color: #007bff;
-              color: white;
-              border: none;
-              padding: 10px 20px;
-              border-radius: 4px;
-              box-shadow: 2px 2px 8px rgba(0,123,255,0.3);
-              cursor: pointer;
-              font-size: 1em;
-              transition: all 0.3s ease;
-              text-decoration: none;
-              display: inline-block;
-              min-height: 44px;
-              line-height: 1.5;
-              box-sizing: border-box;
-              vertical-align: top;
-          }
-          .file-btn:hover {
-              background-color: #0056b3;
-              box-shadow: 2px 2px 12px rgba(0,123,255,0.5);
-              transform: translateY(-1px);
-          }
-          
-          /* Mobile optimizations */
-          @media (max-width: 480px) {
-            .file-btn {
-              padding: 12px 16px;
-              font-size: 16px;
-              width: 100%;
-              margin-bottom: 10px;
-              min-height: 48px;
-              line-height: 1.5;
-              box-sizing: border-box;
-            }
-          }
-        </style>
+        <div class="input-group" style="display: flex; align-items: center; gap: 12px;">
+          <label for="num_lanes" style="margin-bottom: 0; white-space: nowrap;">Number of Lanes:</label>
+          <input type="number" id="num_lanes" name="num_lanes" min="1" required placeholder="Enter Number of lanes" style="max-width: 200px;">
+        </div>
         
-        <script>
-          document.getElementById('add-row-btn').onclick = function() {
-              var table = this.previousElementSibling.querySelector('table');
-              var row = table.insertRow(-1);
-              var number = table.rows.length - 1;
-              var cell1 = row.insertCell(0);
-              var cell2 = row.insertCell(1);
-              var cell3 = row.insertCell(2);
-              cell1.innerHTML = number;
-              cell2.innerHTML = '<input type="text" name="Team_Name">';
-              cell3.innerHTML = `<select name="Team_Division">
-                  <option value="">--Select--</option>
-                  <option value="Mixed">Mixed</option>
-                  <option value="Womens">Womens</option>
-                  <option value="BCS">BCS</option>
-                  <option value="Open">Open</option>
-              </select>`;
-          };
-          
-          // Service worker registration for PWA
-          if ('serviceWorker' in navigator) {
-            navigator.serviceWorker.register('{{ url_for('static', filename='service-worker.js') }}');
-          }
-        </script>
-      </body>
-      </html>
+        <input type="submit" value="Generate Race Draw for Heats" class="file-btn" style="margin-top:10px;">
+        
+        <div class="info-section" style="margin-top:20px;">
+          If you want to re-generate the list, enter in the number of lanes and click 'Generate....' again
+        </div>
+      </form>
+    
+    {% if errors %}
+      <div class="error-list">
+        <ul>
+        {% for error in errors %}
+          <li>{{ error }}</li>
+        {% endfor %}
+        </ul>
+      </div>
+    {% endif %}
+    
+    {% if heat1 %}
+      <h3>--- Heat 1 Draw ---</h3>
+      {% for race in heat1 %}
+        <div style="margin-bottom:20px;">
+          <b>Race {{loop.index}}:</b>
+          <div class="race-table">
+            <table>
+              <tr>
+                <th>Lane</th>
+                <th style="width:220px;">Team Name</th>
+                <th>Division</th>
+              </tr>
+              {% for team in race %}
+              <tr>
+                <td>{{loop.index}}</td>
+                <td style="width:220px;{% if team['Team Name'] in duplicate_names %} background-color: #ffcccc;{% endif %}">
+                  {% if team and team['Team Name'] %}
+                    {{ team['Team Name'] }}
+                  {% else %}
+                    <span class="empty-cell">EMPTY</span>
+                  {% endif %}
+                </td>
+                <td>{{team['Division'] if team else ""}}</td>
+              </tr>
+              {% endfor %}
+            </table>
+          </div>
+        </div>
+      {% endfor %}
+      
+      <h3>--- Heat 2 Draw ---</h3>
+      {% for race in heat2 %}
+        <div style="margin-bottom:20px;">
+          <b>Race {{heat1|length + loop.index}}:</b>
+          <div class="race-table">
+            <table>
+              <tr>
+                <th>Lane</th>
+                <th style="width:220px;">Team Name</th>
+                <th>Division</th>
+              </tr>
+              {% for team in race %}
+              <tr>
+                <td>{{loop.index}}</td>
+                <td style="width:220px;">
+                  {% if team and team['Team Name'] %}
+                    {{ team['Team Name'] }}
+                  {% else %}
+                    <span class="empty-cell">EMPTY</span>
+                  {% endif %}
+                </td>
+                <td>{{team['Division'] if team else ""}}</td>
+              </tr>
+              {% endfor %}
+            </table>
+          </div>
+        </div>
+      {% endfor %}
+    {% endif %}
+    
+    {% if heat1 and heat2 %}
+      <div class="warning-section">
+        <label>Ensure you check the last two races of the 'Heat 1' and the first two races of 'Heat 2' so the teams are not the same</label>
+      </div>
+      <form action="{{ url_for('race_draw.export_manual_csv') }}" method="post" style="margin-top:20px;">
+        <button type="submit" class="file-btn">Export as CSV</button>
+     </form>
+   {% endif %}
+   
+  <form action="{{ url_for('selector') }}" method="get" style="margin-top:20px;">
+    <button type="submit" style="background-color:#6c757d; color:white; padding:8px 16px; border:none; border-radius:4px;">
+      Back to Selector Page
+    </button>
+  </form>
+</div>
+
+<style>
+  .file-btn {
+      background-color: #007bff;
+      color: white;
+      border: none;
+      padding: 10px 20px;
+      border-radius: 4px;
+      box-shadow: 2px 2px 8px rgba(0,123,255,0.3);
+      cursor: pointer;
+      font-size: 1em;
+      transition: all 0.3s ease;
+      text-decoration: none;
+      display: inline-block;
+      min-height: 44px;
+      line-height: 1.5;
+      box-sizing: border-box;
+      vertical-align: top;
+  }
+  .file-btn:hover {
+      background-color: #0056b3;
+      box-shadow: 2px 2px 12px rgba(0,123,255,0.5);
+      transform: translateY(-1px);
+  }
+  
+  /* Mobile optimizations */
+  @media (max-width: 480px) {
+    .file-btn {
+      padding: 12px 16px;
+      font-size: 16px;
+      width: 100%;
+      margin-bottom: 10px;
+      min-height: 48px;
+      line-height: 1.5;
+      box-sizing: border-box;
+    }
+  }
+</style>
+
+<script>
+  document.getElementById('add-row-btn').onclick = function() {
+      var table = this.previousElementSibling.querySelector('table');
+      var row = table.insertRow(-1);
+      var number = table.rows.length - 1;
+      var cell1 = row.insertCell(0);
+      var cell2 = row.insertCell(1);
+      var cell3 = row.insertCell(2);
+      cell1.innerHTML = number;
+      cell2.innerHTML = '<input type="text" name="Team_Name">';
+      cell3.innerHTML = `<select name="Team_Division">
+          <option value="">--Select--</option>
+          <option value="Mixed">Mixed</option>
+          <option value="Womens">Womens</option>
+          <option value="BCS">BCS</option>
+          <option value="Open">Open</option>
+      </select>`;
+  };
+  
+  // Service worker registration for PWA
+  if ('serviceWorker' in navigator) {
+    navigator.serviceWorker.register('{{ url_for('static', filename='service-worker.js') }}');
+  }
+</script>
+</body>
+</html>
     """,
         heat1=heat1, heat2=heat2, errors=errors, teams=teams, num_lanes=num_lanes, duplicate_names=duplicate_names
     )

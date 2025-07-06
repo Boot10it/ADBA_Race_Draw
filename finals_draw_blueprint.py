@@ -12,15 +12,8 @@ FINALS_UPLOAD_HTML = '''
 <head>
   <title>Finals Draw Creation</title>
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <link rel="stylesheet" href="{{ url_for('static', filename='Shared.css') }}">
   <style>
-    body {
-      font-family: Arial, sans-serif;
-      margin: 0;
-      padding: 20px;
-      background-color: #1a1a1a;
-      color: #ffffff;
-      line-height: 1.5;
-    }
     .container {
       max-width: 1200px;
       margin: 0 auto;
@@ -28,10 +21,6 @@ FINALS_UPLOAD_HTML = '''
       padding: 20px;
       border-radius: 8px;
       box-shadow: 0 2px 10px rgba(0,0,0,0.3);
-    }
-    h2, h3, h4 {
-      color: #ffffff;
-      margin-bottom: 16px;
     }
     .form-section {
       margin-bottom: 30px;
@@ -50,8 +39,6 @@ FINALS_UPLOAD_HTML = '''
       color: #ffffff;
     }
     .example-image {
-      max-width: 100%;
-      height: auto;
       margin: 16px 0;
       border: 2px solid #555;
       border-radius: 4px;
@@ -63,7 +50,7 @@ FINALS_UPLOAD_HTML = '''
       align-items: center;
       margin: 16px 0;
     }
-    .data-table {
+    .data-table, .summary-table, .finals-table {
       width: 100%;
       border-collapse: collapse;
       margin-bottom: 20px;
@@ -71,103 +58,26 @@ FINALS_UPLOAD_HTML = '''
       display: block;
       white-space: nowrap;
     }
-    .data-table table {
-      width: 100%;
-      min-width: 600px;
-    }
-    .data-table th, .data-table td {
+    .data-table th, .data-table td,
+    .summary-table th, .summary-table td,
+    .finals-table th, .finals-table td {
       border: 1px solid #555;
       padding: 8px;
       text-align: left;
     }
-    .data-table th {
-      background-color: #4d4d4d;
+    .data-table th, .summary-table th, .finals-table th {
       font-weight: 600;
       color: #ffffff;
-      position: sticky;
-      top: 0;
     }
+    .data-table th { background-color: #4d4d4d; position: sticky; top: 0; }
+    .summary-table th { background-color: #2d4d2d; }
+    .finals-table th { background-color: #5d4e2d; }
     .data-table input[type="text"] {
       width: 100%;
       padding: 4px;
       border: 1px solid #555;
       border-radius: 3px;
       font-size: 14px;
-      background-color: #4d4d4d;
-      color: #ffffff;
-    }
-    .summary-table {
-      width: 100%;
-      border-collapse: collapse;
-      margin-bottom: 20px;
-      overflow-x: auto;
-      display: block;
-      white-space: nowrap;
-    }
-    .summary-table table {
-      width: 100%;
-      min-width: 500px;
-    }
-    .summary-table th, .summary-table td {
-      border: 1px solid #555;
-      padding: 8px;
-      text-align: left;
-    }
-    .summary-table th {
-      background-color: #2d4d2d;
-      font-weight: 600;
-      color: #ffffff;
-    }
-    .finals-table {
-      width: 100%;
-      border-collapse: collapse;
-      margin-bottom: 20px;
-      overflow-x: auto;
-      display: block;
-      white-space: nowrap;
-    }
-    .finals-table table {
-      width: 100%;
-      min-width: 450px;
-    }
-    .finals-table th, .finals-table td {
-      border: 1px solid #555;
-      padding: 8px;
-      text-align: left;
-    }
-    .finals-table th {
-      background-color: #5d4e2d;
-      font-weight: 600;
-      color: #ffffff;
-    }
-    .lanes-input-group {
-      display: flex;
-      flex-wrap: wrap;
-      gap: 16px;
-      margin-bottom: 20px;
-    }
-    .lanes-input-item {
-      display: flex;
-      flex-direction: column;
-      min-width: 200px;
-    }
-    .lanes-input-item label {
-      margin-bottom: 8px;
-      font-weight: 500;
-    }
-    .lanes-input-item input {
-      padding: 8px;
-      border: 1px solid #555;
-      border-radius: 4px;
-      font-size: 16px;
-      background-color: #4d4d4d;
-      color: #ffffff;
-    }
-    input[type="number"], input[type="file"] {
-      padding: 10px;
-      border: 1px solid #555;
-      border-radius: 4px;
-      font-size: 16px;
       background-color: #4d4d4d;
       color: #ffffff;
     }
@@ -197,171 +107,10 @@ FINALS_UPLOAD_HTML = '''
       border-radius: 4px;
       display: none;
     }
-    
-    /* Responsive design */
-    @media (max-width: 768px) {
-      body {
-        padding: 25px;
-        font-size: 24px;
-      }
-      .container {
-        padding: 30px;
-      }
-      .form-section {
-        padding: 25px;
-      }
-      .file-upload-area {
-        flex-direction: column;
-        align-items: stretch;
-      }
-      .data-table, .summary-table, .finals-table {
-        font-size: 20px;
-        overflow-x: auto;
-        display: block;
-        white-space: nowrap;
-      }
-      .data-table th, .data-table td,
-      .summary-table th, .summary-table td,
-      .finals-table th, .finals-table td {
-        padding: 12px;
-        min-width: 120px;
-      }
-      .lanes-input-group {
-        flex-direction: column;
-      }
-      .lanes-input-item {
-        min-width: 100%;
-        margin-bottom: 20px;
-      }
-      .lanes-input-item label {
-        font-size: 22px;
-        margin-bottom: 10px;
-      }
-      .lanes-input-item input {
-        padding: 20px;
-        font-size: 24px;
-        min-height: 70px;
-      }
-      .btn, .file-btn {
-        width: 100%;
-        margin-bottom: 20px;
-        padding: 35px 30px;
-        font-size: 28px;
-        min-height: 100px;
-        font-weight: 700;
-        touch-action: manipulation;
-      }
-      h2 {
-        font-size: 2.2rem;
-        text-align: center;
-      }
-      h3, h4 {
-        font-size: 1.8rem;
-        text-align: center;
-      }
+    input[type="file"] {
+      display: none;
     }
-    
-    @media (max-width: 480px) {
-      body {
-        padding: 20px;
-        font-size: 26px;
-      }
-      .container {
-        padding: 25px;
-      }
-      .form-section {
-        padding: 20px;
-      }
-      h2 {
-        font-size: 2.0rem;
-        text-align: center;
-      }
-      h3, h4 {
-        font-size: 1.6rem;
-        text-align: center;
-      }
-      .data-table, .summary-table, .finals-table {
-        font-size: 18px;
-      }
-      .data-table th, .data-table td,
-      .summary-table th, .summary-table td,
-      .finals-table th, .finals-table td {
-        padding: 10px;
-        min-width: 100px;
-      }
-      .btn, .file-btn {
-        padding: 40px 25px;
-        font-size: 30px;
-        min-height: 110px;
-        font-weight: 700;
-        border-radius: 12px;
-        margin-bottom: 25px;
-      }
-      .inline-input-container {
-        flex-direction: column;
-        align-items: stretch;
-      }
-      .inline-input-container label {
-        margin-bottom: 10px;
-        text-align: center;
-        font-size: 24px;
-      }
-      .data-table input[type="text"] {
-        padding: 16px;
-        font-size: 22px;
-        min-height: 60px;
-      }
-      .lanes-input-item label {
-        font-size: 24px;
-      }
-      .lanes-input-item input {
-        padding: 18px;
-        font-size: 26px;
-        min-height: 70px;
-      }
-    }
-    
-    /* High DPI devices like Samsung S24 */
-    @media (max-width: 480px) and (-webkit-min-device-pixel-ratio: 2) {
-      body {
-        font-size: 28px;
-      }
-      .btn, .file-btn {
-        padding: 45px 30px;
-        font-size: 34px;
-        min-height: 120px;
-        font-weight: 700;
-        border-radius: 15px;
-        margin-bottom: 30px;
-      }
-      h2 {
-        font-size: 2.4rem;
-      }
-      h3, h4 {
-        font-size: 1.8rem;
-      }
-      .data-table th, .data-table td,
-      .summary-table th, .summary-table td,
-      .finals-table th, .finals-table td {
-        padding: 12px;
-        font-size: 20px;
-        min-width: 110px;
-      }
-      .data-table input[type="text"] {
-        padding: 20px;
-        font-size: 24px;
-        min-height: 70px;
-        border-width: 2px;
-      }
-      .lanes-input-item label {
-        font-size: 26px;
-      }
-      .lanes-input-item input {
-        padding: 22px;
-        font-size: 28px;
-        min-height: 80px;
-      }
-    }
+    /* Responsive and other page-specific styles ... */
   </style>
 </head>
 <body>
@@ -378,10 +127,11 @@ FINALS_UPLOAD_HTML = '''
       <img src="{{ url_for('static', filename='heats and times.png') }}" alt="Example Format" class="example-image">
       
       <form method="post" enctype="multipart/form-data">
+        <!-- File upload area -->
         <div class="file-upload-area">
           <label for="finals_csv" class="file-btn">1. Choose Upload File</label>
           <input type="file" id="finals_csv" name="finals_csv" required onchange="document.getElementById('file-name').textContent = this.files[0]?.name || ''; document.getElementById('file-name').style.display = this.files[0] ? 'block' : 'none';">
-          <input type="submit" value="2. Upload and Generate Finals" class="upload-btn">
+          <input type="submit" value="2. Upload and Generate Finals" class="file-btn">
         </div>
         <div id="file-name" class="file-name-display"></div>
       </form>
@@ -434,78 +184,13 @@ FINALS_UPLOAD_HTML = '''
           </table>
         </div>
         
-        <div style="margin-top:20px;">
-          <button type="submit" name="edit_times" value="1" class="upload-btn">Save Times</button>
-        </div>
+        <!-- Save Times button -->
+        <button type="submit" name="edit_times" value="1" class="upload-btn">Save Times</button>
       </form>
     {% endif %}
   </div>
   
-  <style>
-    .upload-btn, .file-btn {
-        background-color: #28a745;
-        color: white;
-        border: none;
-        padding: 12px 24px;
-        border-radius: 4px;
-        box-shadow: 2px 2px 8px rgba(40,167,69,0.3);
-        cursor: pointer;
-        font-size: 14px;
-        font-weight: 500;
-        transition: all 0.3s ease;
-        text-decoration: none;
-        display: inline-flex;
-        align-items: center;
-        justify-content: center;
-        height: 44px;
-        min-width: 220px;
-        box-sizing: border-box;
-    }
-    .upload-btn:hover, .file-btn:hover {
-        background-color: #218838;
-        box-shadow: 2px 2px 12px rgba(40,167,69,0.5);
-        transform: translateY(-1px);
-    }
-    input[type="file"] {
-        display: none;
-    }
-    
-    /* Mobile optimizations */
-    @media (max-width: 768px) {
-      .upload-btn, .file-btn {
-        padding: 35px 30px;
-        font-size: 28px;
-        width: 100%;
-        margin-bottom: 20px;
-        min-height: 100px;
-        font-weight: 700;
-      }
-    }
-    
-    @media (max-width: 480px) {
-      .upload-btn, .file-btn {
-        padding: 40px 25px;
-        font-size: 30px;
-        width: 100%;
-        margin-bottom: 25px;
-        min-height: 110px;
-        font-weight: 700;
-        border-radius: 12px;
-      }
-    }
-    
-    /* High DPI devices like Samsung S24 */
-    @media (max-width: 480px) and (-webkit-min-device-pixel-ratio: 2) {
-      .upload-btn, .file-btn {
-        padding: 45px 30px;
-        font-size: 34px;
-        min-height: 120px;
-        font-weight: 700;
-        border-radius: 15px;
-        margin-bottom: 30px;
-      }
-    }
-  </style>
+  
 </body>
 </html>'''
 
@@ -728,6 +413,7 @@ def finals_draw():
               </div>
             {% endfor %}
           </div>
+          <!-- Generate Finals Draw button -->
           <button type="submit" class="upload-btn">Generate Finals Draw</button>
         </form>
       {% endif %}
@@ -765,6 +451,7 @@ def finals_draw():
         {% endfor %}
         
         <form action="{{ url_for('finals_draw.exportfinal_csv') }}" method="post" style="margin-top:20px;">
+          <!-- Export Finals Draw as CSV button -->
           <button type="submit" class="file-btn">Export Finals Draw as CSV</button>
         </form>
       {% endif %}

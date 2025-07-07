@@ -140,7 +140,7 @@ HTML_FORM = '''
       padding: 20px;
       background-color: #3d3d3d;
       border-radius: 6px;
-      border-left: 4px solid #007bff;
+      /* border-left: 4px solid #007bff; */  /* Remove blue border */
     }
     .input-group {
       margin-bottom: 16px;
@@ -309,6 +309,35 @@ HTML_FORM = '''
       
       .subheading {
         font-size: 0.8rem;
+      }
+      
+      .race-table th:nth-child(1),
+      .race-table td:nth-child(1) {
+        width: 22px !important;      /* Lane column smaller */
+        min-width: 16px !important;
+        max-width: 30px !important;
+        padding-left: 1px;
+        padding-right: 1px;
+        text-align: center;
+      }
+      .race-table th:nth-child(2),
+      .race-table td:nth-child(2) {
+        width: 80px !important;      /* Team Name column a bit smaller */
+        min-width: 50px !important;
+        max-width: 120px !important;
+        padding-left: 3px;
+        padding-right: 3px;
+        white-space: normal !important;
+        word-break: break-word !important;
+        overflow-wrap: break-word !important;
+      }
+      .race-table th:nth-child(3),
+      .race-table td:nth-child(3) {
+        width: 45px !important;      /* Division column smaller */
+        min-width: 30px !important;
+        max-width: 60px !important;
+        padding-left: 1px;
+        padding-right: 1px;
       }
     }
     
@@ -717,7 +746,7 @@ def race_draw_manual():
       padding: 20px;
       background-color: #3d3d3d;
       border-radius: 6px;
-      border-left: 4px solid #007bff;
+      /* border-left: 4px solid #007bff; */  /* Remove blue border */
     }
     .team-table {
       width: 100%;
@@ -925,6 +954,35 @@ def race_draw_manual():
       
       .subheading {
         font-size: 0.8rem;
+      }
+      
+      .race-table th:nth-child(1),
+      .race-table td:nth-child(1) {
+        width: 22px !important;      /* Lane column smaller */
+        min-width: 16px !important;
+        max-width: 30px !important;
+        padding-left: 1px;
+        padding-right: 1px;
+        text-align: center;
+      }
+      .race-table th:nth-child(2),
+      .race-table td:nth-child(2) {
+        width: 80px !important;      /* Team Name column a bit smaller */
+        min-width: 50px !important;
+        max-width: 120px !important;
+        padding-left: 3px;
+        padding-right: 3px;
+        white-space: normal !important;
+        word-break: break-word !important;
+        overflow-wrap: break-word !important;
+      }
+      .race-table th:nth-child(3),
+      .race-table td:nth-child(3) {
+        width: 45px !important;      /* Division column smaller */
+        min-width: 30px !important;
+        max-width: 60px !important;
+        padding-left: 1px;
+        padding-right: 1px;
       }
     }
     

@@ -97,4 +97,48 @@ img {
   .success-message {
     font-size: 0.8rem !important;
   }
+  .table-scroll-x {
+    overflow-x: auto;
+    width: 100%;
+    -webkit-overflow-scrolling: touch;
+  }
+  .data-table table {
+    min-width: 300px; /* Adjust as needed for your columns */
+    width: max-content;
+  }
+  /* Optional: prevent wrapping in the Time column */
+  .data-table th:nth-child(7),
+  .data-table td:nth-child(7) {
+    min-width: 100px;      /* or any width you want */
+    max-width: 160px;      /* adjust as needed */
+    white-space: nowrap !important;
+    text-align: left;
+  }
+  .data-table th:nth-child(6),
+  .data-table td:nth-child(6) {
+    width: 45px !important;
+    min-width: 30px !important;
+    max-width: 60px !important;
+    padding-left: 1px;
+    padding-right: 1px;
+    text-align: center;
+  }
+  .data-table td:nth-child(6) input[type="text"] {
+    max-width: 38px;
+    min-width: 0;
+    width: 100%;
+    padding: 2px 4px;
+    font-size: 0.8rem;
+    box-sizing: border-box;
+    text-align: center;
+  }
+  .data-table td:nth-child(7) input[type="text"] {
+    max-width: 90px;       /* adjust as needed */
+    min-width: 0;
+    width: 100%;
+    padding: 2px 4px;
+    font-size: 0.9rem;
+    box-sizing: border-box;
+    text-align: left;
+  }
 }

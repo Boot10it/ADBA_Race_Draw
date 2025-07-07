@@ -111,6 +111,45 @@ FINALS_UPLOAD_HTML = '''
       display: none;
     }
     /* Responsive and other page-specific styles ... */
+    @media (max-width: 480px) {
+      /* Make Lane and Division columns as small as possible */
+      .finals-table th:nth-child(1),
+      .finals-table td:nth-child(1) {
+        width: 22px !important;
+        min-width: 16px !important;
+        max-width: 30px !important;
+        padding-left: 1px;
+        padding-right: 1px;
+        text-align: center;
+      }
+      .finals-table th:nth-child(2),
+      .finals-table td:nth-child(2) {
+        width: 40px !important;
+        min-width: 30px !important;
+        max-width: 60px !important;
+        padding-left: 1px;
+        padding-right: 1px;
+        text-align: center;
+      }
+      .finals-table th:nth-child(3),
+      .finals-table td:nth-child(3) {
+        width: 80px !important;
+        min-width: 50px !important;
+        max-width: 120px !important;
+        padding-left: 2px;
+        padding-right: 2px;
+        white-space: normal !important;
+        word-break: break-word !important;
+        overflow-wrap: break-word !important;
+      }
+      .finals-table th:nth-child(4),
+      .finals-table td:nth-child(4) {
+        white-space: nowrap !important;   /* Prevent wrapping */
+        overflow-x: auto;
+        text-overflow: ellipsis;
+        max-width: 90px;                  /* Adjust as needed for your layout */
+      }
+    }
   </style>
 </head>
 <body>
@@ -426,7 +465,7 @@ def finals_draw():
             {% set ns.global_race_number = ns.global_race_number + 1 %}
             <div style="margin-bottom:20px;">
               <b>Race {{ ns.global_race_number }}</b>
-              <div class="finals-table">
+              <div class="finals-table table-scroll-x">
                 <table>
                   <tr>
                     <th>Lane</th>

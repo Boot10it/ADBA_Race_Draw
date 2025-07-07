@@ -1,4 +1,4 @@
-from flask import Blueprint, render_template_string, request, send_file, url_for, redirect, session
+from flask import Blueprint, render_template_string, request, send_file, url_for, redirect, session, flash
 from io import StringIO, BytesIO
 from collections import defaultdict
 import csv
@@ -193,7 +193,7 @@ FINALS_UPLOAD_HTML = '''
       
       <form method="post" action="#combined-times">
         <textarea name="csv_content" hidden>{{ csv_content }}</textarea>
-        <div class="data-table">
+        <div class="data-table table-scroll-x">
           <table>
             <tr>
               <th>Heat</th>
@@ -225,6 +225,34 @@ FINALS_UPLOAD_HTML = '''
         
         <!-- Save Times button -->
         <button type="submit" name="edit_times" value="1" class="upload-btn">Save Times</button>
+      </form>
+    {% endif %}
+    
+    {% if table %}
+      <!-- Flash messages -->
+      {% with messages = get_flashed_messages(with_categories=true) %}
+        {% if messages %}
+          <div class="flashes">
+            {% for category, message in messages %}
+              <div class="flash-message {{ category }}">{{ message }}</div>
+            {% endfor %}
+          </div>
+        {% endif %}
+      {% endwith %}
+
+      <!-- Save/Load Table Section -->
+      <form method="post" style="margin-bottom:16px; display:flex; gap:8px; align-items:center;">
+        <input type="text" name="save_table_name" placeholder="Enter table name to save/load" style="padding:4px; border-radius:4px; border:1px solid #555; background:#444; color:#fff;">
+        <button type="submit" name="action" value="save_table" class="file-btn" style="min-width:90px;">Save Table</button>
+        {% if saved_tables %}
+          <select name="load_table_name" style="padding:4px; border-radius:4px; border:1px solid #555; background:#444; color:#fff;">
+            <option value="">Select saved table</option>
+            {% for name in saved_tables %}
+              <option value="{{ name }}">{{ name }}</option>
+            {% endfor %}
+          </select>
+          <button type="submit" name="action" value="load_table" class="file-btn" style="min-width:90px;">Load Table</button>
+        {% endif %}
       </form>
     {% endif %}
   </div>
@@ -261,8 +289,29 @@ def finals_draw():
     lanes_per_division = {}
     error_message = ''
     upload_success = False
+    saved_tables = session.get('saved_tables', {})
 
     if request.method == 'POST':
+        # Handle Save Table
+        if request.form.get('action') == 'save_table':
+            save_name = request.form.get('save_table_name', '').strip()
+            if save_name:
+                saved_tables[save_name] = csv_content
+                session['saved_tables'] = saved_tables
+                flash(f"Table saved as '{save_name}'", "success")
+            else:
+                flash("Please enter a name to save the table.", "error")
+
+        # Handle Load Table
+        elif request.form.get('action') == 'load_table':
+            load_name = request.form.get('load_table_name', '').strip()
+            if load_name and load_name in saved_tables:
+                csv_content = saved_tables[load_name]
+                flash(f"Loaded table '{load_name}'", "success")
+            else:
+                flash("Please select a valid table to load.", "error")
+
+        # File upload and editing
         if 'finals_csv' in request.files and request.files['finals_csv']:
             file = request.files['finals_csv']
             csv_content = file.read().decode('utf-8')
@@ -518,13 +567,14 @@ def finals_draw():
   </html>
 ''',
         table=table,
-        header = header,
+        header=header,
         division_groups=division_groups,
         finals_draw=finals_draw,
         csv_content=csv_content,
         last_edit_race_number=last_edit_race_number,
         race_offset=last_edit_race_number,  # Use this as the offset for finals
-        upload_success=upload_success  # Pass to template
+        upload_success=upload_success,  # Pass to template
+        saved_tables=saved_tables.keys()  # Pass saved table names to template
     )
 
 @finals_draw_bp.route('/finals_draw/exportfinal_csv', methods=['POST'])

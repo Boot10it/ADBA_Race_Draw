@@ -1018,45 +1018,47 @@ def race_draw_manual():
         <div class="input-group">
           <label>Enter Team Names and select Divisions:</label>
           <div style="overflow-x: auto;">
-            <table class="team-table">
-              <tr>
-                <th style="width: 50px;">#</th>
-                <th style="width: 60%;">Team Name</th>
-                <th style="width: 30%;">Division</th>
-              </tr>
-              {% for i in range(teams|length) %}
-              <tr>
-                <td>{{ i + 1 }}</td>
-                <td>
-                  <input type="text" name="Team_Name" value="{{ teams[i]['Team Name'] }}" >
-                </td>
-                <td>
-                  <select name="Team_Division" >
-                    {% set divval = teams[i]['Division'] %}
-                    <option value="Mixed"  {% if divval == 'Mixed' %}selected{% endif %}>Mixed</option>
-                    <option value="Womens" {% if divval == 'Womens' %}selected{% endif %}>Womens</option>
-                    <option value="BCS"    {% if divval == 'BCS' %}selected{% endif %}>BCS</option>
-                    <option value="Open"   {% if divval == 'Open' %}selected{% endif %}>Open</option>
-                  </select>
-                </td>
-              </tr>
-              {% endfor %}
-              {% for i in range(4 - teams|length) %}
-              <tr>
-                <td>{{ teams|length + i + 1 }}</td>
-                <td><input type="text" name="Team_Name"></td>
-                <td>
-                  <select name="Team_Division">
-                    <option value="">--Select--</option>
-                    <option value="Mixed">Mixed</option>
-                    <option value="Womens">Womens</option>
-                    <option value="BCS">BCS</option>
-                    <option value="Open">Open</option>
-                  </select>
-                </td>
-              </tr>
-              {% endfor %}
-            </table>
+            <div class="team-table-scroll">
+              <table class="team-table">
+                <tr>
+                  <th style="width: 50px;">#</th>
+                  <th style="width: 60%;">Team Name</th>
+                  <th style="width: 30%;">Division</th>
+                </tr>
+                {% for i in range(teams|length) %}
+                <tr>
+                  <td>{{ i + 1 }}</td>
+                  <td>
+                    <input type="text" name="Team_Name" value="{{ teams[i]['Team Name'] }}" >
+                  </td>
+                  <td>
+                    <select name="Team_Division" >
+                      {% set divval = teams[i]['Division'] %}
+                      <option value="Mixed"  {% if divval == 'Mixed' %}selected{% endif %}>Mixed</option>
+                      <option value="Womens" {% if divval == 'Womens' %}selected{% endif %}>Womens</option>
+                      <option value="BCS"    {% if divval == 'BCS' %}selected{% endif %}>BCS</option>
+                      <option value="Open"   {% if divval == 'Open' %}selected{% endif %}>Open</option>
+                    </select>
+                  </td>
+                </tr>
+                {% endfor %}
+                {% for i in range(4 - teams|length) %}
+                <tr>
+                  <td>{{ teams|length + i + 1 }}</td>
+                  <td><input type="text" name="Team_Name"></td>
+                  <td>
+                    <select name="Team_Division">
+                      <option value="">--Select--</option>
+                      <option value="Mixed">Mixed</option>
+                      <option value="Womens">Womens</option>
+                      <option value="BCS">BCS</option>
+                      <option value="Open">Open</option>
+                    </select>
+                  </td>
+                </tr>
+                {% endfor %}
+              </table>
+            </div>
           </div>
           
           <button type="button" id="add-row-btn" class="file-btn" style="margin-bottom:10px;">+ Add Team</button>
@@ -1069,8 +1071,7 @@ def race_draw_manual():
         </div>
         
         <div class="input-group" style="display: flex; align-items: center; gap: 12px;">
-          <label for="num_lanes" style="margin-bottom: 0; white-space: nowrap;">Number of Lanes:</label>
-          <input type="number" id="num_lanes" name="num_lanes" min="1" required placeholder="Enter Number of lanes" style="max-width: 200px;">
+           <input type="number" id="num_lanes" name="num_lanes" min="1" required placeholder="Enter Number of lanes" style="max-width: 200px;">
         </div>
         
         <input type="submit" value="Generate Race Draw for Heats" class="file-btn" style="margin-top:10px;">

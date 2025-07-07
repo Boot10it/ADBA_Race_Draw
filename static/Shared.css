@@ -142,3 +142,121 @@ img {
     text-align: left;
   }
 }
+.team-table-scroll {
+  overflow-x: auto;
+  width: 100%;
+  -webkit-overflow-scrolling: touch;
+}
+
+.team-table {
+  min-width: 350px; /* Adjust as needed */
+  width: max-content;
+  table-layout: fixed;
+}
+
+.team-table th:nth-child(1),
+.team-table td:nth-child(1) {
+  width: 36px;      /* Row number */
+  min-width: 28px;
+  max-width: 44px;
+  text-align: center;
+  padding-left: 2px;
+  padding-right: 2px;
+}
+
+.team-table th:nth-child(2),
+.team-table td:nth-child(2) {
+  width: 120px;     /* Team Name */
+  min-width: 80px;
+  max-width: 180px;
+  padding-left: 4px;
+  padding-right: 4px;
+  word-break: break-word;
+}
+
+.team-table th:nth-child(3),
+.team-table td:nth-child(3) {
+  width: 70px;      /* Division */
+  min-width: 50px;
+  max-width: 100px;
+  padding-left: 2px;
+  padding-right: 2px;
+}
+
+@media (max-width: 480px) {
+  .team-table th, .team-table td {
+    font-size: 0.9rem;
+    padding: 2px 2px;  /* Reduce vertical padding for smaller row height */
+    line-height: 1.2;  /* Optional: slightly tighter line height */
+  }
+  .team-table th:nth-child(1),
+  .team-table td:nth-child(1) {
+    width: 28px;
+    min-width: 20px;
+    max-width: 32px;
+  }
+  .team-table th:nth-child(2),
+  .team-table td:nth-child(2) {
+    width: 80px;
+    min-width: 60px;
+    max-width: 120px;
+  }
+  .team-table th:nth-child(3),
+  .team-table td:nth-child(3) {
+    width: 50px;
+    min-width: 40px;
+    max-width: 70px;
+  }
+  .team-table td input[type="text"],
+  .team-table td select {
+    padding-top: 0px;
+    padding-bottom: 0px;
+    padding-left: 2px;
+    padding-right: 2px;
+    height: 1.4em;
+    font-size: 13px;
+    line-height: 1.1;
+  }
+}
+.container,
+.form-section,
+.input-group label,
+.info-section,
+.error-list,
+.success-message {
+  font-size: 1rem;
+  line-height: 1.5;   /* Add this for more vertical space between lines */
+}
+
+@media (max-width: 480px) {
+  .container,
+  .form-section,
+  .input-group label,
+  .info-section,
+  .error-list,
+  .success-message {
+    font-size: 0.8rem !important;
+    line-height: 1.4 !important;  /* Slightly tighter on mobile, but still spaced */
+  }
+}
+.flashes {
+  margin-bottom: 12px;
+}
+.flash-message.success {
+  background: #2d4d2d;
+  color: #4caf50;
+  padding: 8px 12px;
+  border-radius: 4px;
+  border: 1px solid #4a8b4a;
+  margin-bottom: 6px;
+  font-weight: bold;
+}
+.flash-message.error {
+  background: #5d2d2d;
+  color: #ff6b6b;
+  padding: 8px 12px;
+  border-radius: 4px;
+  border: 1px solid #8b4a4a;
+  margin-bottom: 6px;
+  font-weight: bold;
+}
